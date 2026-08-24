@@ -78,3 +78,49 @@
     animation: fade-up 600ms var(--ease-out) both;
   }
 }
+
+@layer components {
+  /* Gooey button fill: three ellipses sit below the button, clipped through
+     the shared #goo SVG filter (blur + sharpened alpha) so their blurred
+     edges fuse into one liquid blob instead of three separate circles.
+     Only `transform` animates — the filter itself is static. */
+  .btn-gooey-blobs {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    border-radius: inherit;
+    filter: url(#goo);
+    pointer-events: none;
+  }
+
+  .btn-gooey-blobs > div {
+    position: absolute;
+    top: 0;
+    width: 36%;
+    height: 100%;
+    border-radius: 100%;
+    background-color: var(--color-ink);
+    transform: scale(1.4) translateY(125%) translateZ(0);
+    transition: transform 650ms var(--ease-in-out);
+  }
+
+  .btn-gooey-blobs > div:nth-child(1) {
+    left: -6%;
+  }
+
+  .btn-gooey-blobs > div:nth-child(2) {
+    left: 32%;
+    transition-delay: 60ms;
+  }
+
+  .btn-gooey-blobs > div:nth-child(3) {
+    left: 68%;
+    transition-delay: 25ms;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .btn-gooey:hover .btn-gooey-blobs > div {
+      transform: scale(1.4) translateY(0) translateZ(0);
+    }
+  }
+}
