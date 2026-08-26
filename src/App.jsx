@@ -3,6 +3,7 @@ import Hero from "./components/Hero.jsx";
 import PlaceholderSection from "./components/PlaceholderSection.jsx";
 import Footer from "./components/Footer.jsx";
 import GooFilter from "./components/GooFilter.jsx";
+import ScrollVideoScrub from "./components/ScrollVideoScrub.tsx";
 
 export default function App() {
   return (
@@ -11,6 +12,7 @@ export default function App() {
       <Header />
       <main>
         <Hero />
+        <ScrollVideoScrub videoSrc="/davinci-scrub.mp4" />
         <PlaceholderSection id="leistungen" eyebrow="Leistungen" title="Platzhalter: Leistungen" />
         <PlaceholderSection id="galerie" eyebrow="Galerie" title="Platzhalter: Vorher/Nachher" alt />
         <PlaceholderSection id="ueber-uns" eyebrow="Über uns" title="Platzhalter: Über Kolya" />

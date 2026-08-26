@@ -78,6 +78,39 @@
     animation: fade-up 600ms var(--ease-out) both;
   }
 
+  @keyframes car-reveal {
+    from {
+      opacity: 0;
+      transform: translateY(40px) scale(1.03);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  .animate-car-reveal {
+    opacity: 0;
+    animation: car-reveal 1000ms var(--ease-out) both;
+  }
+
+  .car-spotlight {
+    -webkit-mask-image: radial-gradient(
+      circle 190px at var(--spot-x, 50%) var(--spot-y, 50%),
+      black 0%,
+      black 45%,
+      transparent 100%
+    );
+    mask-image: radial-gradient(
+      circle 190px at var(--spot-x, 50%) var(--spot-y, 50%),
+      black 0%,
+      black 45%,
+      transparent 100%
+    );
+    opacity: var(--spot-opacity, 0);
+    transition: opacity 200ms var(--ease-out);
+  }
+
   @keyframes scroll-cue {
     0%,
     100% {
