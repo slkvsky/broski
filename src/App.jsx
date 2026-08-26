@@ -2,10 +2,12 @@ import Header from "./components/Header.jsx";
 import Hero from "./components/Hero.jsx";
 import PlaceholderSection from "./components/PlaceholderSection.jsx";
 import Footer from "./components/Footer.jsx";
+import GooFilter from "./components/GooFilter.jsx";
 
 export default function App() {
   return (
     <div className="min-h-dvh bg-bg">
+      <GooFilter />
       <Header />
       <main>
         <Hero />
