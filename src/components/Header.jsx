@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import Button from "./Button.jsx";
+import logoMark from "../assets/logo-mark.webp";
 
 const NAV_LINKS = [
   { label: "Leistungen", href: "#leistungen" },
@@ -69,8 +70,8 @@ export default function Header() {
       }`}
     >
       <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 md:px-10">
-        <a href="#top" className="font-display text-lg font-semibold tracking-tight text-dark-ink">
-          BROSKI<span className="text-accent">.</span>
+        <a href="#top" className="shrink-0">
+          <img src={logoMark} alt="Broski Detailing" className="h-8 w-auto md:h-9" />
         </a>
 
         <nav className="hidden items-center gap-8 md:flex">
