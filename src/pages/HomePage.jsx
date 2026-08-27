@@ -2,6 +2,9 @@ import { useEffect } from "react";
 import Hero from "../components/Hero.jsx";
 import Kalkulator from "../components/Kalkulator.jsx";
 import WarumBroski from "../components/WarumBroski.jsx";
+import Faq from "../components/Faq.jsx";
+import Testimonials from "../components/Testimonials.jsx";
+import FinalCta from "../components/FinalCta.jsx";
 import ScrollVideoScrub from "../components/ScrollVideoScrub.tsx";
 
 export default function HomePage() {
@@ -27,6 +30,9 @@ export default function HomePage() {
         afterLabel="Nachher"
       />
       <Kalkulator />
+      <Faq />
+      <Testimonials />
+      <FinalCta />
     </>
   );
 }

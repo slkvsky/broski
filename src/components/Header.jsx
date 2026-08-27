@@ -94,6 +94,12 @@ export default function Header() {
           >
             Gewerbekunden
           </Link>
+          <Link
+            to="/faq"
+            className="text-xs font-medium uppercase tracking-[0.15em] text-dark-ink-soft transition-colors duration-150 ease-out hover:text-dark-ink"
+          >
+            FAQ
+          </Link>
           <Button as="a" href="/#kontakt" variant="primary" arrow={false} className="px-5 py-2.5 text-xs">
             Termin anfragen
           </Button>
@@ -134,6 +140,13 @@ export default function Header() {
             className="border-b border-dark-ink/10 py-4 font-display text-2xl text-dark-ink"
           >
             Gewerbekunden
+          </Link>
+          <Link
+            to="/faq"
+            onClick={() => setOpen(false)}
+            className="border-b border-dark-ink/10 py-4 font-display text-2xl text-dark-ink"
+          >
+            FAQ
           </Link>
         </nav>
 
