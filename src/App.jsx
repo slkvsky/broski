@@ -5,6 +5,7 @@ import Footer from "./components/Footer.jsx";
 import GooFilter from "./components/GooFilter.jsx";
 import HomePage from "./pages/HomePage.jsx";
 import GewerbekundenPage from "./pages/GewerbekundenPage.jsx";
+import FaqPage from "./pages/FaqPage.jsx";
 
 function ScrollToTopOnNavigate() {
   const { pathname, hash } = useLocation();
@@ -30,6 +31,7 @@ export default function App() {
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/gewerbekunden" element={<GewerbekundenPage />} />
+          <Route path="/faq" element={<FaqPage />} />
         </Routes>
       </main>
       <Footer />
