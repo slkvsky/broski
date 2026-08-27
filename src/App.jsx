@@ -6,6 +6,8 @@ import GooFilter from "./components/GooFilter.jsx";
 import HomePage from "./pages/HomePage.jsx";
 import GewerbekundenPage from "./pages/GewerbekundenPage.jsx";
 import FaqPage from "./pages/FaqPage.jsx";
+import ImpressumPage from "./pages/ImpressumPage.jsx";
+import DatenschutzPage from "./pages/DatenschutzPage.jsx";
 
 function ScrollToTopOnNavigate() {
   const { pathname, hash } = useLocation();
@@ -32,6 +34,8 @@ export default function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/gewerbekunden" element={<GewerbekundenPage />} />
           <Route path="/faq" element={<FaqPage />} />
+          <Route path="/impressum" element={<ImpressumPage />} />
+          <Route path="/datenschutz" element={<DatenschutzPage />} />
         </Routes>
       </main>
       <Footer />
