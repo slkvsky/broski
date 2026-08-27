@@ -1,12 +1,12 @@
 @import "tailwindcss";
 
 @theme {
-  --color-bg: #faf8f2;
-  --color-bg-alt: #f2efe6;
-  --color-ink: #17191c;
-  --color-ink-soft: #55585e;
-  --color-line: #dfdacb;
-  --color-line-soft: #eae6da;
+  --color-bg: #0b0b0c;
+  --color-bg-alt: #141416;
+  --color-ink: #f5f3ee;
+  --color-ink-soft: #98958c;
+  --color-line: #242427;
+  --color-line-soft: #1c1c1e;
   --color-accent: #f5c400;
   --color-accent-ink: #171200;
 
