@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import Button from "./Button.jsx";
 import logoMark from "../assets/logo-mark.webp";
 
 const NAV_LINKS = [
-  { label: "Leistungen", href: "#leistungen" },
-  { label: "Galerie", href: "#galerie" },
-  { label: "Über uns", href: "#ueber-uns" },
-  { label: "Kontakt", href: "#kontakt" },
+  { label: "Leistungen", href: "/#leistungen" },
+  { label: "Galerie", href: "/#galerie" },
+  { label: "Über uns", href: "/#ueber-uns" },
+  { label: "Kontakt", href: "/#kontakt" },
 ];
 
 function MenuIcon({ open }) {
@@ -28,7 +29,10 @@ function MenuIcon({ open }) {
 
 export default function Header() {
   const [open, setOpen] = useState(false);
-  const [overHero, setOverHero] = useState(true);
+  // Lazy-initialized: pages without a Hero (e.g. /gewerbekunden) have
+  // nothing dark behind the header to stay transparent over, so it should
+  // read as solid from the first render instead of assuming a Hero exists.
+  const [overHero, setOverHero] = useState(() => Boolean(document.getElementById("top")));
 
   useEffect(() => {
     if (!open) return;
@@ -70,9 +74,9 @@ export default function Header() {
       }`}
     >
       <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 md:px-10">
-        <a href="#top" className="shrink-0">
+        <Link to="/" className="shrink-0">
           <img src={logoMark} alt="Broski Detailing" className="h-8 w-auto md:h-9" />
-        </a>
+        </Link>
 
         <nav className="hidden items-center gap-8 md:flex">
           {NAV_LINKS.map((link) => (
@@ -84,7 +88,13 @@ export default function Header() {
               {link.label}
             </a>
           ))}
-          <Button as="a" href="#kontakt" variant="primary" arrow={false} className="px-5 py-2.5 text-xs">
+          <Link
+            to="/gewerbekunden"
+            className="text-xs font-medium uppercase tracking-[0.15em] text-dark-ink-soft transition-colors duration-150 ease-out hover:text-dark-ink"
+          >
+            Gewerbekunden
+          </Link>
+          <Button as="a" href="/#kontakt" variant="primary" arrow={false} className="px-5 py-2.5 text-xs">
             Termin anfragen
           </Button>
         </nav>
@@ -118,11 +128,18 @@ export default function Header() {
               {link.label}
             </a>
           ))}
+          <Link
+            to="/gewerbekunden"
+            onClick={() => setOpen(false)}
+            className="border-b border-dark-ink/10 py-4 font-display text-2xl text-dark-ink"
+          >
+            Gewerbekunden
+          </Link>
         </nav>
 
         <Button
           as="a"
-          href="#kontakt"
+          href="/#kontakt"
           variant="primary"
           onClick={() => setOpen(false)}
           className="w-full justify-center"

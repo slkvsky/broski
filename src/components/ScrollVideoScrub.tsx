@@ -2,14 +2,23 @@ import { useEffect, useRef, useState } from "react";
 
 interface ScrollVideoScrubProps {
   videoSrc: string;
+  eyebrow?: string;
+  beforeLabel?: string;
+  afterLabel?: string;
 }
 
-export default function ScrollVideoScrub({ videoSrc }: ScrollVideoScrubProps) {
+export default function ScrollVideoScrub({
+  videoSrc,
+  eyebrow = "Vorher / Nachher",
+  beforeLabel = "Vorher",
+  afterLabel = "Nachher",
+}: ScrollVideoScrubProps) {
   const sectionRef = useRef<HTMLElement | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const rafRef = useRef<number | null>(null);
   const tickingRef = useRef(false);
   const [ready, setReady] = useState(false);
+  const [progress, setProgress] = useState(0);
 
   // Metadata (and therefore video.duration) isn't available until the
   // browser has parsed the file header, so scrubbing is gated on that
@@ -54,6 +63,7 @@ export default function ScrollVideoScrub({ videoSrc }: ScrollVideoScrubProps) {
       if (Number.isFinite(targetTime)) {
         video.currentTime = targetTime;
       }
+      setProgress(progress);
     };
 
     const handleScroll = () => {
@@ -76,17 +86,52 @@ export default function ScrollVideoScrub({ videoSrc }: ScrollVideoScrubProps) {
     };
   }, [ready]);
 
+  const isAfter = progress > 0.5;
+
   return (
-    <section ref={sectionRef} className="relative h-[300vh]">
-      <div className="sticky top-0 h-dvh w-full overflow-hidden">
-        <video
-          ref={videoRef}
-          src={videoSrc}
-          muted
-          playsInline
-          preload="auto"
-          className="h-full w-full object-cover"
-        />
+    <section ref={sectionRef} className="relative h-[300vh] bg-dark-bg">
+      <div className="sticky top-0 flex h-dvh w-full items-center justify-center overflow-hidden px-6 py-16 md:px-10">
+        <div className="relative aspect-video w-full max-w-5xl overflow-hidden rounded-3xl shadow-2xl ring-1 ring-dark-ink/10">
+          <video
+            ref={videoRef}
+            src={videoSrc}
+            muted
+            playsInline
+            preload="auto"
+            className="h-full w-full object-cover"
+          />
+
+          {/* Keeps the eyebrow/label row and heading legible over any frame
+              of the clip without dimming the footage itself. */}
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/70 via-black/0 to-black/50" />
+
+          <div className="absolute inset-x-0 top-0 flex items-center justify-between p-6 md:p-8">
+            <p className="text-xs font-medium uppercase tracking-[0.3em] text-dark-ink-soft">
+              {eyebrow}
+            </p>
+            <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-[0.25em]">
+              <span className={isAfter ? "text-dark-ink-soft" : "text-accent"}>
+                {beforeLabel}
+              </span>
+              <span className="text-dark-ink-soft/40">/</span>
+              <span className={isAfter ? "text-accent" : "text-dark-ink-soft"}>
+                {afterLabel}
+              </span>
+            </div>
+          </div>
+
+          <div className="absolute inset-x-0 bottom-0 p-6 md:p-8">
+            <h2 className="font-display text-2xl font-semibold text-dark-ink sm:text-3xl">
+              {isAfter ? afterLabel : beforeLabel}
+            </h2>
+            <div className="mt-4 h-1 w-full overflow-hidden rounded-full bg-dark-ink/10">
+              <div
+                className="h-full rounded-full bg-accent"
+                style={{ width: `${progress * 100}%` }}
+              />
+            </div>
+          </div>
+        </div>
       </div>
     </section>
   );
