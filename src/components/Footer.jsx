@@ -1,9 +1,9 @@
 import { Link } from "react-router-dom";
-import { CONTACT_EMAIL } from "../data/services.js";
+import { CONTACT_EMAIL, CONTACT_PHONE, CONTACT_PHONE_HREF, WHATSAPP_HREF } from "../data/services.js";
 import { FacebookIcon, InstagramIcon, TiktokIcon, YoutubeIcon } from "./icons/SocialIcons.jsx";
 
-// Placeholders until the real business details/profiles are ready — kept in
-// one place so swapping them later is a one-line change per entry.
+// Placeholders until the real social profiles are ready — kept in one place
+// so swapping them later is a one-line change per entry.
 const SOCIAL_LINKS = [
   { label: "Instagram", href: "#", icon: InstagramIcon },
   { label: "TikTok", href: "#", icon: TiktokIcon },
@@ -31,13 +31,20 @@ export default function Footer() {
 
             <div className="mt-6 flex flex-col gap-2 text-sm text-ink-soft">
               <span>Musterstraße 1, 42103 Wuppertal</span>
-              <a href="tel:+490000000" className="w-fit transition-colors duration-150 hover:text-ink">
-                +49 000 000000
+              <a href={CONTACT_PHONE_HREF} className="w-fit transition-colors duration-150 hover:text-ink">
+                {CONTACT_PHONE}
               </a>
               <a href={`mailto:${CONTACT_EMAIL}`} className="w-fit transition-colors duration-150 hover:text-ink">
                 {CONTACT_EMAIL}
               </a>
-              <span className="w-fit">WhatsApp: +49 000 000000</span>
+              <a
+                href={WHATSAPP_HREF}
+                target="_blank"
+                rel="noreferrer"
+                className="w-fit transition-colors duration-150 hover:text-ink"
+              >
+                WhatsApp: {CONTACT_PHONE}
+              </a>
             </div>
           </div>
 

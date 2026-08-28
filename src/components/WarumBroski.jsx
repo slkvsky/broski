@@ -1,34 +1,34 @@
 import { useEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { Car, ScanSearch, ShieldCheck, Sparkles } from "lucide-react";
+import { Car, ScanSearch, ShieldCheck, UserCheck } from "lucide-react";
 
 gsap.registerPlugin(ScrollTrigger);
 
 const REASONS = [
   {
     number: "01",
-    icon: Sparkles,
+    icon: UserCheck,
     title: "Individueller Anspruch",
-    text: "Jedes Fahrzeug bekommt ein Vorgehen, das zu seinem Zustand und deinen Wünschen passt — keine Aufbereitung von der Stange.",
+    text: "Jedes Fahrzeug ist anders. Deshalb wird jede Aufbereitung individuell auf Zustand, Material und Anforderungen des Fahrzeugs abgestimmt.",
   },
   {
     number: "02",
     icon: ShieldCheck,
     title: "Qualität ohne Kompromisse",
-    text: "Hochwertige Produkte, geprüfte Abläufe, sorgfältige Ausführung — bei jedem Auftrag, unabhängig vom Umfang.",
+    text: "Wir verwenden ausschließlich professionelle Produkte und hochwertige Materialien, die für die jeweilige Anwendung ausgewählt werden.",
   },
   {
     number: "03",
     icon: ScanSearch,
     title: "Detail für Detail",
-    text: "Vom Türfalz bis zur Felgeninnenseite — wir schauen genau hin, wo andere längst fertig sind.",
+    text: "Wir arbeiten nicht auf Zeit. Entscheidend ist das Ergebnis. Jedes Detail wird so lange bearbeitet, bis das bestmögliche Ergebnis erreicht ist.",
   },
   {
     number: "04",
     icon: Car,
     title: "Mobil bei Ihnen",
-    text: "Wir kommen zu dir — nach Hause, ins Büro, auf den Firmenparkplatz. Du musst dafür nirgendwo hinfahren.",
+    text: "Professionelle Fahrzeugaufbereitung direkt bei Ihnen – flexibel, persönlich und ohne unnötige Wege.",
   },
 ];
 
@@ -182,8 +182,8 @@ export default function WarumBroski() {
     <section id="warum-broski" className="border-b border-line bg-bg px-6 py-24 md:px-10">
       <div className="mx-auto max-w-7xl">
         <div className="text-center">
-          <p className="mb-3 text-xs font-medium uppercase tracking-widest text-ink-soft">Warum Broski</p>
-          <h2 className="font-display text-2xl font-semibold text-ink sm:text-3xl">Was uns unterscheidet</h2>
+          <h2 className="font-display text-2xl font-semibold text-ink sm:text-3xl mb-3">Warum Broski</h2>
+          <p className="text-xs font-medium uppercase tracking-widest text-ink-soft">Was uns unterscheidet</p>
         </div>
 
         <div ref={containerRef} className="relative mt-16 flex flex-col gap-[60px] md:mt-20">

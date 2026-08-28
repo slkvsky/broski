@@ -1,89 +1,90 @@
 export const FAQS = [
   {
-    id: "mobiler-service",
-    question: "Kommt ihr wirklich zu mir nach Hause oder ins Büro?",
+    id: "wo-taetig",
+    question: "Wo ist Broski tätig?",
     answer:
-      "Ja — unser mobiler Service kommt zu dir nach Hause, ins Büro oder auf den Firmenparkplatz. Du brauchst nur einen Stellplatz mit Zugang zu Wasser und Strom in der Nähe, den Rest bringen wir mit.",
+      "Broski ist in Wuppertal und Umgebung tätig. Die wichtigsten Einsatzgebiete finden Sie auf unserer Website. Weitere Orte sind auf Anfrage möglich.",
+  },
+  {
+    id: "direkt-zu-mir",
+    question: "Kommt ihr direkt zu mir?",
+    answer:
+      "Ja. Broski ist mobil unterwegs und kommt nach Möglichkeit direkt zu Ihnen. Die Voraussetzungen für die jeweilige Aufbereitung werden vorab abgestimmt.",
     featured: true,
   },
   {
-    id: "preis",
-    question: "Was kostet eine Aufbereitung?",
+    id: "preis-bestimmung",
+    question: "Wie wird der endgültige Preis bestimmt?",
     answer:
-      "Der Preis hängt von Fahrzeugklasse und gewähltem Paket ab — von der Außenreinigung ab 49 € bis zur Politur & Versiegelung ab 249 €. Nutze den Kalkulator für einen unverbindlichen Richtpreis in wenigen Schritten.",
+      "Unsere Preise sind Einstiegspreise. Der endgültige Preis richtet sich nach Fahrzeuggröße, Zustand, Verschmutzungsgrad und dem tatsächlichen Arbeitsaufwand.",
     featured: true,
   },
   {
-    id: "versiegelung-dauer",
-    question: "Wie lange hält eine Versiegelung?",
+    id: "stark-verschmutzt",
+    question: "Was passiert bei einem stark verschmutzten Fahrzeug?",
     answer:
-      "Eine klassische Versiegelung hält je nach Pflege und Nutzung etwa 3–6 Monate. Eine Keramikversiegelung bietet mit bis zu 12–24 Monaten deutlich längeren Schutz.",
+      "Stärkere Verschmutzungen werden individuell behandelt. Sollte dadurch zusätzlicher Aufwand entstehen, wird dieser vor Beginn der Arbeiten mit Ihnen abgestimmt.",
+  },
+  {
+    id: "oberflaechliche-reinigung",
+    question: "Ist eine oberflächliche Reinigung auch möglich?",
+    answer:
+      "Broski steht für eine gründliche Fahrzeugaufbereitung. Wir arbeiten nicht auf Zeit, sondern auf Ergebnis und passen den Umfang individuell an den Zustand des Fahrzeugs an.",
+  },
+  {
+    id: "innenraum-leistungen",
+    question: "Was ist bei der Innenraum-Aufbereitung enthalten?",
+    answer:
+      "Je nach Zustand werden Polster und Teppiche tiefengereinigt, Leder und Kunststoffflächen materialgerecht gereinigt und gepflegt sowie schwer zugängliche Bereiche detailliert behandelt.",
+  },
+  {
+    id: "aussen-leistungen",
+    question: "Was ist bei der Außen-Aufbereitung enthalten?",
+    answer:
+      "Neben der gründlichen Außenreinigung werden je nach Zustand unter anderem Felgen, Insektenreste, Flugrost und weitere Lackverunreinigungen behandelt. Bei Bedarf wird der Lack zusätzlich dekontaminiert und vorbereitet.",
+  },
+  {
+    id: "one-step-politur",
+    question: "Was ist eine One-Step-Politur?",
+    answer:
+      "Eine One-Step-Politur verbessert Glanz und Lackbild und kann leichte bis mittlere Waschspuren und Lackdefekte reduzieren. Stärkere Lackschäden erfordern gegebenenfalls eine individuelle Mehrstufenpolitur.",
+  },
+  {
+    id: "keramikversiegelung-standzeit",
+    question: "Wie lange hält die keramische Lackversiegelung?",
+    answer:
+      "Bei Verwendung von GYEON Q² Pure EVO beträgt die angegebene Standzeit bis zu 36 Monate bzw. 40.000 km – abhängig von Nutzung, Pflege und den jeweiligen Bedingungen.",
     featured: true,
+  },
+  {
+    id: "leder-farbwiederherstellung",
+    question: "Was ist die Leder-Farbwiederherstellung?",
+    answer:
+      "Stark abgenutzte oder verfärbte Lederflächen werden professionell vorbereitet, farblich wiederhergestellt und anschließend geschützt. Dafür verwenden wir unter anderem professionelle COLOURLOCK-Produkte.",
+  },
+  {
+    id: "lenkrad-schalthebel",
+    question: "Können auch Lenkräder und Schalt-/Wählhebel wiederhergestellt werden?",
+    answer:
+      "Ja. Die Leder-Farbwiederherstellung ist speziell für stark beanspruchte Lederflächen wie Lenkräder und Schalt-/Wählhebel möglich. Vorher-/Nachher-Beispiele finden Sie direkt bei der Leistung.",
+  },
+  {
+    id: "schlechtes-wetter",
+    question: "Was passiert bei schlechtem Wetter?",
+    answer:
+      "Die Qualität der Arbeit steht an erster Stelle. Wenn die Wetterbedingungen eine fachgerechte Durchführung nicht zulassen, wird der Termin individuell angepasst.",
+  },
+  {
+    id: "individuelle-anfrage",
+    question: "Kann ich auch eine individuelle Anfrage stellen?",
+    answer:
+      "Ja. Wenn Sie nicht genau wissen, welche Leistungen Ihr Fahrzeug benötigt, senden Sie uns einfach Ihre Anfrage und gerne einige Fotos. Wir empfehlen Ihnen die passende Lösung.",
   },
   {
     id: "gewerbekunden",
-    question: "Bietet ihr auch Lösungen für Firmenflotten an?",
+    question: "Arbeitet Broski auch mit Unternehmen?",
     answer:
-      "Ja — für Fuhrparks, Autohäuser und Firmenflotten bieten wir feste Ansprechpartner, Sammelrechnung und flexible Termine direkt vor Ort. Mehr dazu findest du auf unserer Gewerbekunden-Seite.",
+      "Ja. Wir arbeiten auch mit Autohäusern, Fahrzeughändlern und anderen Gewerbekunden zusammen. Für regelmäßige Aufträge und größere Fahrzeugmengen bieten wir individuelle Konditionen an.",
     featured: true,
-  },
-  {
-    id: "dauer",
-    question: "Wie lange dauert eine Aufbereitung?",
-    answer:
-      "Je nach Umfang und Zustand des Fahrzeugs zwischen 1,5 Stunden (Außenreinigung) und einem ganzen Tag (Politur & Versiegelung). Beim Termin nennen wir dir eine genaue Zeitspanne.",
-  },
-  {
-    id: "zahlung",
-    question: "Wie kann ich bezahlen?",
-    answer:
-      "Bar, per Überweisung oder auf Anfrage auch per Kartenzahlung vor Ort. Gewerbekunden erhalten auf Wunsch eine Sammelrechnung.",
-  },
-  {
-    id: "wetter",
-    question: "Was passiert bei schlechtem Wetter?",
-    answer:
-      "Innenreinigung und viele Arbeitsschritte sind wetterunabhängig. Bei Regen oder Frost verschieben wir bei Bedarf einzelne Außenarbeiten wie die Politur, um ein sauberes Ergebnis sicherzustellen.",
-  },
-  {
-    id: "vorbereitung",
-    question: "Muss ich das Fahrzeug vorbereiten?",
-    answer: "Nein — du musst nichts vorbereiten. Persönliche Gegenstände solltest du vorher entfernen, den Rest übernehmen wir.",
-  },
-  {
-    id: "stellplatz",
-    question: "Was brauche ich für den mobilen Service vor Ort?",
-    answer:
-      "Im Idealfall einen befestigten Stellplatz mit Zugang zu einer Steckdose und einem Wasseranschluss. Ist das nicht möglich, sprich uns an — wir finden meist eine Lösung.",
-  },
-  {
-    id: "leder",
-    question: "Was ist eine Leder-Farbauffrischung?",
-    answer:
-      "Dabei werden verblasste oder verschlissene Ledersitze farblich aufgefrischt und neu versiegelt — für ein deutlich jüngeres Erscheinungsbild und besseren Schutz vor weiterem Verschleiß.",
-  },
-  {
-    id: "geruch",
-    question: "Könnt ihr hartnäckige Gerüche im Auto entfernen?",
-    answer:
-      "Ja — mit unserer Ozon-Geruchsentfernung bekämpfen wir Gerüche wie Rauch, Tierhaare oder Feuchtigkeit direkt an der Quelle, statt sie nur zu überdecken.",
-  },
-  {
-    id: "keramik-vs-versiegelung",
-    question: "Was ist der Unterschied zwischen Versiegelung und Keramikversiegelung?",
-    answer:
-      "Eine klassische Versiegelung schützt den Lack für einige Monate. Keramikversiegelung bildet eine härtere, langlebigere Schutzschicht mit stärkerem Glanz- und Kratzschutz — dafür etwas kostenintensiver.",
-  },
-  {
-    id: "individuell",
-    question: "Was, wenn keine Standard-Option zu meinem Fahrzeug passt?",
-    answer:
-      "Über den Kalkulator kannst du eine individuelle Anfrage mit Fotos stellen. Wir schauen uns dein Anliegen an und melden uns mit einem passenden Angebot.",
-  },
-  {
-    id: "termin",
-    question: "Wie schnell bekomme ich einen Termin?",
-    answer:
-      "In der Regel innerhalb weniger Tage. Sende uns einfach eine Anfrage über den Kalkulator oder das Kontaktformular — wir melden uns zeitnah mit verfügbaren Terminen.",
   },
 ];

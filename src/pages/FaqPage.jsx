@@ -1,6 +1,8 @@
 import { useEffect } from "react";
+import { Link } from "react-router-dom";
 import FaqAccordion from "../components/FaqAccordion.jsx";
 import { FAQS } from "../data/faq.js";
+import { CONTACT_EMAIL, WHATSAPP_HREF } from "../data/services.js";
 
 export default function FaqPage() {
   useEffect(() => {
@@ -34,6 +36,37 @@ export default function FaqPage() {
 
           <div className="mt-10 border-t border-line">
             <FaqAccordion items={FAQS} />
+          </div>
+
+          <div className="mt-16 border-t border-line pt-10 text-center">
+            <h2 className="font-display text-xl font-semibold text-ink sm:text-2xl">
+              Ihre Frage war nicht dabei?
+            </h2>
+            <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-ink-soft sm:text-base">
+              Schreiben Sie uns gerne direkt. Wir finden gemeinsam die passende Lösung für Ihr Fahrzeug.
+            </p>
+
+            <div className="mt-6 flex flex-wrap items-center justify-center gap-x-3 gap-y-2 text-xs font-medium uppercase tracking-widest">
+              <a
+                href={WHATSAPP_HREF}
+                target="_blank"
+                rel="noreferrer"
+                className="text-ink-soft transition-colors duration-150 hover:text-ink"
+              >
+                WhatsApp
+              </a>
+              <span className="text-ink-soft/40" aria-hidden="true">·</span>
+              <a
+                href={`mailto:${CONTACT_EMAIL}`}
+                className="text-ink-soft transition-colors duration-150 hover:text-ink"
+              >
+                E-Mail
+              </a>
+              <span className="text-ink-soft/40" aria-hidden="true">·</span>
+              <Link to="/#leistungen" className="text-accent transition-colors duration-150 hover:text-ink">
+                Anfrage senden
+              </Link>
+            </div>
           </div>
         </div>
       </section>
