@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import Hero from "../components/Hero.jsx";
+import ServiceAreaTicker from "../components/ServiceAreaTicker.jsx";
 import Kalkulator from "../components/Kalkulator.jsx";
 import WarumBroski from "../components/WarumBroski.jsx";
 import Faq from "../components/Faq.jsx";
@@ -22,6 +23,7 @@ export default function HomePage() {
   return (
     <>
       <Hero />
+      <ServiceAreaTicker />
       <WarumBroski />
       <ScrollVideoScrub
         videoSrc="/davinci-scrub-2.mp4"

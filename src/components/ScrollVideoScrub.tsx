@@ -91,6 +91,27 @@ export default function ScrollVideoScrub({
   return (
     <section ref={sectionRef} className="relative h-[300vh] bg-dark-bg">
       <div className="sticky top-0 flex h-dvh w-full items-center justify-center overflow-hidden px-6 py-16 md:px-10">
+        {/* Image (+ its darkening overlay) stays fully visible throughout;
+            only the top/bottom edges fade into the flat section color so the
+            pin boundary reads as a soft vignette instead of a hard cut. The
+            mask covers both layers so the edge settles on the section's own
+            bg-dark-bg (#0b0b0c) rather than a darker black. */}
+        <div
+          className="absolute inset-0"
+          style={{
+            maskImage:
+              "linear-gradient(to bottom, transparent 0%, black 18%, black 82%, transparent 100%)",
+            WebkitMaskImage:
+              "linear-gradient(to bottom, transparent 0%, black 18%, black 82%, transparent 100%)",
+          }}
+        >
+          <div
+            className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+            style={{ backgroundImage: "url(/premium-auto-dark-background-16x9.png)" }}
+          />
+          <div className="absolute inset-0 bg-black/45" />
+        </div>
+
         <div className="relative aspect-video w-full max-w-5xl overflow-hidden rounded-3xl shadow-2xl ring-1 ring-dark-ink/10">
           <video
             ref={videoRef}
