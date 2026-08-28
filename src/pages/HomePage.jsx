@@ -1,7 +1,11 @@
 import { useEffect } from "react";
 import Hero from "../components/Hero.jsx";
+import ServiceAreaTicker from "../components/ServiceAreaTicker.jsx";
 import Kalkulator from "../components/Kalkulator.jsx";
 import WarumBroski from "../components/WarumBroski.jsx";
+import Faq from "../components/Faq.jsx";
+import Testimonials from "../components/Testimonials.jsx";
+import FinalCta from "../components/FinalCta.jsx";
 import ScrollVideoScrub from "../components/ScrollVideoScrub.tsx";
 
 export default function HomePage() {
@@ -19,6 +23,7 @@ export default function HomePage() {
   return (
     <>
       <Hero />
+      <ServiceAreaTicker />
       <WarumBroski />
       <ScrollVideoScrub
         videoSrc="/davinci-scrub-2.mp4"
@@ -27,6 +32,9 @@ export default function HomePage() {
         afterLabel="Nachher"
       />
       <Kalkulator />
+      <Faq />
+      <Testimonials />
+      <FinalCta />
     </>
   );
 }

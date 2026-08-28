@@ -1,6 +1,17 @@
 import { useEffect, useRef, useState } from "react";
+import { Mail } from "lucide-react";
 import Button from "./Button.jsx";
+import { InstagramIcon, WhatsappIcon } from "./icons/SocialIcons.jsx";
+import { CONTACT_EMAIL, WHATSAPP_HREF } from "../data/services.js";
 import carImage from "../assets/car.png";
+
+// Instagram placeholder until the real profile is ready, same pattern as
+// the footer's SOCIAL_LINKS.
+const HERO_SOCIAL_LINKS = [
+  { label: "WhatsApp", href: WHATSAPP_HREF, icon: WhatsappIcon },
+  { label: "Instagram", href: "#", icon: InstagramIcon },
+  { label: "E-Mail", href: `mailto:${CONTACT_EMAIL}`, icon: Mail },
+];
 
 // Intrinsic size of the exported asset — declared on the <img> so the
 // browser reserves the right box before it loads (no layout shift on the
@@ -15,7 +26,7 @@ function ScrollCue({ className = "" }) {
         Scroll
       </span>
       <span className="h-10 w-px bg-dark-ink/15" />
-      <span className="animate-scroll-cue block h-1.5 w-1.5 rotate-45 border-b border-r border-dark-ink-soft" />
+      <span className="block h-1.5 w-1.5 rotate-45 border-b border-r border-dark-ink-soft" />
     </div>
   );
 }
@@ -63,7 +74,7 @@ export default function Hero() {
             over-100% bleed back down to the viewport width on small screens */}
         <div
           ref={stageRef}
-          className="@container relative w-[125%] max-w-none shrink-0 sm:w-full sm:max-w-[1250px]"
+          className="@container relative w-[105%] max-w-none shrink-0 sm:w-full sm:max-w-[1250px]"
         >
           {/* Sized in container-query units so the wordmark keeps the same
               proportion to the car at every viewport, capped car width included. */}
@@ -88,11 +99,12 @@ export default function Hero() {
             height={CAR_H}
             fetchPriority="high"
             decoding="async"
+            draggable={false}
             onLoad={() => setCarLoaded(true)}
             onError={() => setCarLoaded(true)}
             onMouseMove={handleCarMouseMove}
             onMouseLeave={handleCarMouseLeave}
-            className={`relative z-10 block w-full translate-y-[6%] grayscale brightness-75 sm:translate-y-[9%] ${carLoaded ? "animate-car-reveal" : "opacity-0"}`}
+            className={`relative z-10 block w-full translate-y-[6%] select-none grayscale brightness-75 sm:translate-y-[9%] ${carLoaded ? "animate-car-reveal" : "opacity-0"}`}
           />
 
           {/* Color copy of the same photo, masked to a small circle that
@@ -122,15 +134,32 @@ export default function Hero() {
             Versprechens und der Zielgruppe folgt hier sp&auml;ter.
           </p>
 
-          <Button
-            as="a"
-            href="#kontakt"
-            variant="primary"
-            className={`mt-8 ${carLoaded ? "animate-fade-up" : "opacity-0"}`}
+          <div
+            className={`mt-8 flex items-center gap-5 ${carLoaded ? "animate-fade-up" : "opacity-0"}`}
             style={carLoaded ? { animationDelay: "800ms" } : undefined}
           >
-            Termin anfragen
-          </Button>
+            <Button as="a" href="#kontakt" variant="primary">
+              Termin anfragen
+            </Button>
+
+            <div className="flex items-center gap-3">
+              {HERO_SOCIAL_LINKS.map(({ label, href, icon: Icon }) => {
+                const isMail = href.startsWith("mailto:");
+                return (
+                  <a
+                    key={label}
+                    href={href}
+                    target={isMail ? undefined : "_blank"}
+                    rel={isMail ? undefined : "noreferrer"}
+                    aria-label={label}
+                    className="flex h-11 w-11 items-center justify-center rounded-full border border-dark-ink/15 text-dark-ink-soft transition-colors duration-150 hover:border-accent hover:text-accent"
+                  >
+                    <Icon size={18} strokeWidth={1.75} aria-hidden="true" />
+                  </a>
+                );
+              })}
+            </div>
+          </div>
         </div>
 
         <ScrollCue className="hidden lg:flex" />

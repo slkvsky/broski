@@ -1,4 +1,7 @@
-export const CONTACT_EMAIL = "anfrage@broski-detailing.de";
+export const CONTACT_EMAIL = "broski.detailingg@gmail.com";
+export const CONTACT_PHONE = "+49 152 37880830";
+export const CONTACT_PHONE_HREF = "tel:+4915237880830";
+export const WHATSAPP_HREF = "https://wa.me/4915237880830";
 
 export const PACKAGES = [
   { id: "aussen", label: "Außenreinigung", desc: "Handwäsche, Felgen, Reifen, Fenster außen", basePrice: 49 },
