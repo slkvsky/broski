@@ -91,9 +91,18 @@ export default function ScrollVideoScrub({
       rafRef.current = requestAnimationFrame(updateScrub);
     };
 
-    // Sync immediately so the video reflects the current scroll position
-    // without waiting for the first scroll event.
-    updateScrub();
+    // iOS Safari won't paint any frame from a currentTime assignment alone —
+    // the decoder has to have actually played at least once, or the video
+    // stays a black rectangle no matter what currentTime is set to. Muted
+    // playback is allowed to autoplay without a user gesture, so kick it off
+    // and immediately pause to "prime" a frame before the first scroll-driven
+    // seek. Sync immediately after so the video reflects the current scroll
+    // position without waiting for the first scroll event.
+    video
+      .play()
+      .then(() => video.pause())
+      .catch(() => {})
+      .finally(updateScrub);
 
     window.addEventListener("scroll", handleScroll, { passive: true });
     window.addEventListener("resize", handleScroll, { passive: true });
