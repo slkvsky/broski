@@ -78,6 +78,21 @@
     animation: fade-up 600ms var(--ease-out) both;
   }
 
+  @keyframes step-fade {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-step-fade {
+    animation: step-fade 220ms var(--ease-out) both;
+  }
+
   @keyframes car-reveal {
     from {
       opacity: 0;

@@ -265,17 +265,19 @@ export default function Kalkulator() {
 
           <div className="mt-10">
             {customSubmitted ? (
-              <Confirmation
-                title="Anfrage vorbereitet"
-                description={
-                  customFiles.length
-                    ? "Dein E-Mail-Programm öffnet sich mit allen Angaben. Bitte hänge die ausgewählten Fotos manuell an, bevor du die E-Mail absendest."
-                    : "Dein E-Mail-Programm öffnet sich mit allen Angaben. Prüfe die Nachricht kurz und sende sie ab — wir melden uns zeitnah."
-                }
-                onReset={resetCustom}
-              />
+              <div key="confirmation" className="animate-step-fade">
+                <Confirmation
+                  title="Anfrage vorbereitet"
+                  description={
+                    customFiles.length
+                      ? "Dein E-Mail-Programm öffnet sich mit allen Angaben. Bitte hänge die ausgewählten Fotos manuell an, bevor du die E-Mail absendest."
+                      : "Dein E-Mail-Programm öffnet sich mit allen Angaben. Prüfe die Nachricht kurz und sende sie ab — wir melden uns zeitnah."
+                  }
+                  onReset={resetCustom}
+                />
+              </div>
             ) : (
-              <form onSubmit={handleCustomSubmit} className="flex flex-col gap-6">
+              <form onSubmit={handleCustomSubmit} key="custom-form" className="flex flex-col gap-6 animate-step-fade">
                 <div>
                   <label htmlFor="custom-vehicle" className="mb-2 block text-sm text-ink-soft">
                     Marke &amp; Modell <span className="text-ink-soft/70">(optional)</span>
@@ -409,15 +411,18 @@ export default function Kalkulator() {
 
         <div className="mt-10">
           {submitted ? (
-            <Confirmation
-              title="Anfrage vorbereitet"
-              description="Dein E-Mail-Programm öffnet sich mit allen Angaben. Prüfe die Nachricht kurz und sende sie ab — wir melden uns zeitnah mit deinem finalen Angebot."
-              onReset={resetCalculator}
-            />
+            <div key="confirmation" className="animate-step-fade">
+              <Confirmation
+                title="Anfrage vorbereitet"
+                description="Dein E-Mail-Programm öffnet sich mit allen Angaben. Prüfe die Nachricht kurz und sende sie ab — wir melden uns zeitnah mit deinem finalen Angebot."
+                onReset={resetCalculator}
+              />
+            </div>
           ) : (
-            <>
+            <div key="calculator" className="animate-step-fade">
               <StepIndicator step={step} />
 
+              <div key={step} className="animate-step-fade">
               {step === 0 && (
                 <div>
                   <div className="grid gap-3 sm:grid-cols-2">
@@ -534,6 +539,7 @@ export default function Kalkulator() {
                   </div>
                 </form>
               )}
+              </div>
 
               {step > 0 && selectedPackage && <PriceBar total={totalPrice} />}
 
@@ -580,7 +586,7 @@ export default function Kalkulator() {
               >
                 Passt keine Option? Individuelle Anfrage mit Fotos stellen →
               </button>
-            </>
+            </div>
           )}
         </div>
       </div>
