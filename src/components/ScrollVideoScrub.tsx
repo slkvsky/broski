@@ -7,6 +7,24 @@ interface ScrollVideoScrubProps {
   afterLabel?: string;
 }
 
+// GSAP/JS-driven scroll effects ignore the site's global prefers-reduced-motion
+// CSS rule (that rule only mutes CSS transitions/animations), so scroll-linked
+// motion needs its own check — same pattern as WarumBroski.jsx's usePrefersReducedMotion.
+function usePrefersReducedMotion(): boolean {
+  const [reduced, setReduced] = useState(
+    () => typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches,
+  );
+
+  useEffect(() => {
+    const query = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const handleChange = (event: MediaQueryListEvent) => setReduced(event.matches);
+    query.addEventListener("change", handleChange);
+    return () => query.removeEventListener("change", handleChange);
+  }, []);
+
+  return reduced;
+}
+
 export default function ScrollVideoScrub({
   videoSrc,
   eyebrow = "Vorher / Nachher",
@@ -19,6 +37,7 @@ export default function ScrollVideoScrub({
   const tickingRef = useRef(false);
   const [ready, setReady] = useState(false);
   const [progress, setProgress] = useState(0);
+  const reducedMotion = usePrefersReducedMotion();
 
   // Metadata (and therefore video.duration) isn't available until the
   // browser has parsed the file header, so scrubbing is gated on that
@@ -45,7 +64,7 @@ export default function ScrollVideoScrub({
   }, [videoSrc]);
 
   useEffect(() => {
-    if (!ready) return;
+    if (!ready || reducedMotion) return;
 
     const section = sectionRef.current;
     const video = videoRef.current;
@@ -84,7 +103,32 @@ export default function ScrollVideoScrub({
       window.removeEventListener("resize", handleScroll);
       if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
     };
-  }, [ready]);
+  }, [ready, reducedMotion]);
+
+  // When scroll-scrubbing is disabled for reduced motion, still show the
+  // before/after transformation — just decoupled from scroll input. Progress
+  // (and therefore the Vorher/Nachher label + progress bar) now tracks the
+  // video's own playback time instead of scroll position.
+  useEffect(() => {
+    if (!ready || !reducedMotion) return;
+
+    const video = videoRef.current;
+    if (!video) return;
+
+    video.loop = true;
+    video.play().catch(() => {});
+
+    const handleTimeUpdate = () => {
+      if (Number.isFinite(video.duration) && video.duration > 0) {
+        setProgress(video.currentTime / video.duration);
+      }
+    };
+    video.addEventListener("timeupdate", handleTimeUpdate);
+
+    return () => {
+      video.removeEventListener("timeupdate", handleTimeUpdate);
+    };
+  }, [ready, reducedMotion]);
 
   const isAfter = progress > 0.5;
 

@@ -19,7 +19,7 @@ export default function Button({
     <Tag
       className={`group inline-flex items-center rounded-full px-6 py-3.5
         font-display text-sm font-medium tracking-wide
-        transition-colors duration-500 ease-out
+        transition-[color,background-color,border-color,transform] duration-[160ms] ease-out
         active:scale-[0.97] cursor-pointer
         ${VARIANTS[variant]} ${className}`}
       {...props}
