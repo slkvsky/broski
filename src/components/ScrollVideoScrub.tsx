@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { ChevronDown } from "lucide-react";
 
 interface ScrollVideoScrubProps {
   videoSrc: string;
@@ -33,11 +34,24 @@ export default function ScrollVideoScrub({
 }: ScrollVideoScrubProps) {
   const sectionRef = useRef<HTMLElement | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
+  const ambientCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const rafRef = useRef<number | null>(null);
   const tickingRef = useRef(false);
   const [ready, setReady] = useState(false);
   const [progress, setProgress] = useState(0);
   const reducedMotion = usePrefersReducedMotion();
+
+  // Mobile-only ambient background: paints the video's current frame into a
+  // canvas that's rendered heavily blurred and scaled up behind the card
+  // (see the mobile background layer in the markup below). Reuses the frame
+  // already decoded for the visible <video> — no second network fetch.
+  function drawAmbientFrame(video: HTMLVideoElement) {
+    const canvas = ambientCanvasRef.current;
+    if (!canvas || !video.videoWidth || !video.videoHeight) return;
+    if (canvas.width !== video.videoWidth) canvas.width = video.videoWidth;
+    if (canvas.height !== video.videoHeight) canvas.height = video.videoHeight;
+    canvas.getContext("2d")?.drawImage(video, 0, 0, canvas.width, canvas.height);
+  }
 
   // Metadata (and therefore video.duration) isn't available until the
   // browser has parsed the file header, so scrubbing is gated on that
@@ -83,6 +97,7 @@ export default function ScrollVideoScrub({
         video.currentTime = targetTime;
       }
       setProgress(progress);
+      drawAmbientFrame(video);
     };
 
     const handleScroll = () => {
@@ -131,6 +146,7 @@ export default function ScrollVideoScrub({
       if (Number.isFinite(video.duration) && video.duration > 0) {
         setProgress(video.currentTime / video.duration);
       }
+      drawAmbientFrame(video);
     };
     video.addEventListener("timeupdate", handleTimeUpdate);
 
@@ -140,17 +156,22 @@ export default function ScrollVideoScrub({
   }, [ready, reducedMotion]);
 
   const isAfter = progress > 0.5;
+  // Holds fully visible through the first 4% of scroll (so a light nudge
+  // doesn't instantly wipe it away), then fades out gradually through 18% —
+  // a nudge for the mobile-only "start scrolling" hint, not shown once
+  // reduced motion is on (there's no meaningful "before you scroll" moment
+  // then, since the card isn't scroll-scrubbed in that mode).
+  const HINT_HOLD = 0.04;
+  const HINT_FADE_END = 0.18;
+  const hintOpacity =
+    progress <= HINT_HOLD ? 1 : Math.max(0, 1 - (progress - HINT_HOLD) / (HINT_FADE_END - HINT_HOLD));
 
   return (
     <section ref={sectionRef} className="relative h-[300vh] bg-dark-bg">
       <div className="sticky top-0 flex h-dvh w-full items-center justify-center overflow-hidden px-6 py-16 md:px-10">
-        {/* Image (+ its darkening overlay) stays fully visible throughout;
-            only the top/bottom edges fade into the flat section color so the
-            pin boundary reads as a soft vignette instead of a hard cut. The
-            mask covers both layers so the edge settles on the section's own
-            bg-dark-bg (#0b0b0c) rather than a darker black. */}
+        {/* Desktop background: the static dark-auto photo, unchanged. */}
         <div
-          className="absolute inset-0"
+          className="absolute inset-0 hidden md:block"
           style={{
             maskImage:
               "linear-gradient(to bottom, transparent 0%, black 18%, black 82%, transparent 100%)",
@@ -162,18 +183,57 @@ export default function ScrollVideoScrub({
             className="absolute inset-0 bg-cover bg-center bg-no-repeat"
             style={{ backgroundImage: "url(/premium-auto-dark-background-16x9.png)" }}
           />
-          <div className="absolute inset-0 bg-black/45" />
+          <div className="absolute inset-0 bg-black/70" />
         </div>
 
-        <div className="relative aspect-video w-full max-w-5xl overflow-hidden rounded-3xl shadow-2xl ring-1 ring-dark-ink/10">
-          <video
-            ref={videoRef}
-            src={videoSrc}
-            muted
-            playsInline
-            preload="auto"
-            className="h-full w-full object-cover"
+        {/* Mobile background: the video's own current frame, scaled up and
+            heavily blurred, so the space around the (narrower, portrait-
+            cropped) card reads as an intentional ambient glow instead of
+            dead black space. Kept dark/desaturated so the card stays the
+            clear focal point. */}
+        <div
+          className="absolute inset-0 block md:hidden"
+          style={{
+            maskImage:
+              "linear-gradient(to bottom, transparent 0%, black 18%, black 82%, transparent 100%)",
+            WebkitMaskImage:
+              "linear-gradient(to bottom, transparent 0%, black 18%, black 82%, transparent 100%)",
+          }}
+        >
+          <canvas
+            ref={ambientCanvasRef}
+            aria-hidden="true"
+            className="h-full w-full scale-150 object-cover blur-[50px] brightness-50 saturate-75"
           />
+          <div className="absolute inset-0 bg-black/40" />
+        </div>
+
+        <div className="relative w-full max-w-5xl">
+          {/* Mobile-only scroll hint, anchored just above the card so it
+              fills the empty space regardless of viewport height. Holds,
+              then fades out gradually as the user scrolls into the section. */}
+          {!reducedMotion && (
+            <div
+              aria-hidden="true"
+              style={{ opacity: hintOpacity }}
+              className="absolute inset-x-0 bottom-full mb-6 flex flex-col items-center gap-2 text-center transition-opacity duration-500 ease-out md:hidden"
+            >
+              <p className="text-xs font-medium uppercase tracking-[0.3em] text-dark-ink-soft">
+                Scroll für die Verwandlung
+              </p>
+              <ChevronDown size={18} strokeWidth={1.75} className="animate-scroll-cue text-dark-ink-soft" />
+            </div>
+          )}
+
+          <div className="relative aspect-video w-full overflow-hidden rounded-3xl shadow-2xl ring-1 ring-dark-ink/10">
+            <video
+              ref={videoRef}
+              src={videoSrc}
+              muted
+              playsInline
+              preload="auto"
+              className="h-full w-full object-cover"
+            />
 
           {/* Keeps the eyebrow/label row and heading legible over any frame
               of the clip without dimming the footage itself. */}
@@ -204,6 +264,7 @@ export default function ScrollVideoScrub({
                 style={{ width: `${progress * 100}%` }}
               />
             </div>
+          </div>
           </div>
         </div>
       </div>
