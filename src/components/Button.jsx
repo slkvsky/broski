@@ -19,7 +19,7 @@ export default function Button({
     <Tag
       className={`group inline-flex items-center rounded-full px-6 py-3.5
         font-display text-sm font-medium tracking-wide
-        transition-[color,background-color,border-color,transform] duration-[160ms] ease-out
+        transition-[color,background-color,border-color,scale] duration-[160ms] ease-out
         active:scale-[0.97] cursor-pointer
         ${VARIANTS[variant]} ${className}`}
       {...props}
@@ -39,7 +39,7 @@ export default function Button({
             size={16}
             strokeWidth={2}
             aria-hidden="true"
-            className="transition-transform duration-200 ease-out group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+            className="transition-[translate] duration-200 ease-out group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
           />
         )}
       </span>

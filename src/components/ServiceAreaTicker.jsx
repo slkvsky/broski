@@ -34,12 +34,20 @@ function CityList({ hidden = false }) {
 
 export default function ServiceAreaTicker() {
   return (
-    <div className="flex w-full items-center gap-2 overflow-hidden border-y border-line bg-bg-alt py-3 pl-4 sm:gap-4 md:pl-10">
-      <span className="shrink-0 font-mono text-[10px] font-medium uppercase tracking-wider text-accent sm:text-xs sm:tracking-widest">
+    <div className="relative flex w-full items-center gap-2 overflow-hidden border-y border-line bg-bg-alt py-3 pl-4 sm:gap-4 md:pl-10">
+      {/* Slow accent-tinted light pass over the whole band — a cheap nod to
+          the Hero's spotlight motif without touching the marquee itself. */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-y-0 left-0 z-0 w-1/3 animate-ticker-sweep"
+        style={{ background: "linear-gradient(90deg, transparent, rgba(245,196,0,0.14), transparent)" }}
+      />
+
+      <span className="relative z-10 shrink-0 font-mono text-[10px] font-medium uppercase tracking-wider text-accent sm:text-xs sm:tracking-widest">
         Mobiler Service in der Region
       </span>
       <div
-        className="relative flex shrink-0 overflow-hidden"
+        className="relative z-10 flex shrink-0 overflow-hidden"
         style={{ maskImage: "linear-gradient(to right, transparent, black 5%, black 95%, transparent)" }}
       >
         <div className="flex shrink-0 animate-marquee">

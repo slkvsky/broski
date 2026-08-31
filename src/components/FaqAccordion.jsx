@@ -17,14 +17,24 @@ function FaqItem({ question, answer, index, inView }) {
         type="button"
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
-        className="flex w-full items-center justify-between gap-4 text-left"
+        className="flex w-full items-center gap-4 text-left"
       >
-        <span className="font-display text-base font-medium text-ink sm:text-lg">{question}</span>
+        {/* Numbered badge echoes WarumBroski's 01–04 circles, tying the two
+            sections' visual language together. */}
+        <span
+          className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full border font-mono text-xs transition-colors duration-300 ease-out ${
+            open ? "border-accent text-accent" : "border-line text-ink-soft"
+          }`}
+          aria-hidden="true"
+        >
+          {String(index + 1).padStart(2, "0")}
+        </span>
+        <span className="flex-1 font-display text-base font-medium text-ink sm:text-lg">{question}</span>
         <ChevronDown
           size={18}
           strokeWidth={2}
           aria-hidden="true"
-          className={`shrink-0 text-ink-soft transition-transform duration-200 ease-out ${open ? "rotate-180" : ""}`}
+          className={`shrink-0 text-ink-soft transition-[rotate] duration-200 ease-out ${open ? "rotate-180" : ""}`}
         />
       </button>
 

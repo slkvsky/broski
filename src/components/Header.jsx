@@ -14,12 +14,12 @@ function MenuIcon({ open }) {
   return (
     <span className="relative flex h-3.5 w-5 flex-col justify-between">
       <span
-        className={`h-px w-full bg-current transition-transform duration-200 ease-out ${
+        className={`h-px w-full bg-current transition-[translate,rotate] duration-200 ease-out ${
           open ? "translate-y-[6.5px] rotate-45" : ""
         }`}
       />
       <span
-        className={`h-px w-full bg-current transition-transform duration-200 ease-out ${
+        className={`h-px w-full bg-current transition-[translate,rotate] duration-200 ease-out ${
           open ? "-translate-y-[6.5px] -rotate-45" : ""
         }`}
       />

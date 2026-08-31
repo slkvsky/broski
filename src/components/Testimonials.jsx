@@ -1,5 +1,5 @@
-import { useRef } from "react";
-import { Star } from "lucide-react";
+import { useRef, useState } from "react";
+import { ChevronLeft, ChevronRight, Star } from "lucide-react";
 import { useInView } from "../hooks/useInView.js";
 
 // Handwritten for now — not sourced from Google, so the section is labeled
@@ -75,8 +75,8 @@ function TestimonialCard({ name, context, text, featured }) {
       ref={cardRef}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
-      className={`group relative flex h-full flex-col gap-4 overflow-hidden rounded-2xl border border-white/10 bg-white/[0.04] backdrop-blur-md transition-colors duration-300 ease-out hover:border-white/20 ${
-        featured ? "justify-center px-8 py-10 sm:px-10" : "px-6 py-6"
+      className={`group relative flex h-full flex-col gap-4 overflow-hidden rounded-2xl border border-white/10 bg-white/[0.04] backdrop-blur-md transition-[border-color,translate,box-shadow] duration-300 ease-out hover:-translate-y-1 hover:border-white/20 hover:shadow-[0_16px_40px_-12px_rgba(0,0,0,0.5)] ${
+        featured ? "px-6 py-6 sm:justify-center sm:px-10 sm:py-10" : "px-6 py-6"
       }`}
     >
       {/* Cursor-follow glass sheen — only opacity is transitioned; position
@@ -93,7 +93,7 @@ function TestimonialCard({ name, context, text, featured }) {
       <Stars size={featured ? 16 : 14} />
       <p
         className={`relative leading-relaxed text-ink ${
-          featured ? "font-display text-xl sm:text-2xl" : "text-sm sm:text-base"
+          featured ? "text-sm sm:font-display sm:text-xl lg:text-2xl" : "text-sm sm:text-base"
         }`}
       >
         &bdquo;{text}&ldquo;
@@ -101,6 +101,81 @@ function TestimonialCard({ name, context, text, featured }) {
       <p className="relative mt-auto text-sm text-ink-soft">
         <span className="font-medium text-ink">{name}</span> · {context}
       </p>
+    </div>
+  );
+}
+
+const PAGE_SIZE = 1;
+const PAGE_COUNT = Math.ceil(TESTIMONIALS.length / PAGE_SIZE);
+
+function MobileCarousel({ inView }) {
+  const trackRef = useRef(null);
+  const [page, setPage] = useState(0);
+
+  function updatePage() {
+    const el = trackRef.current;
+    if (!el) return;
+    setPage(Math.round(el.scrollLeft / el.clientWidth));
+  }
+
+  function goToPage(index) {
+    const el = trackRef.current;
+    if (!el) return;
+    const clamped = Math.max(0, Math.min(PAGE_COUNT - 1, index));
+    el.scrollTo({ left: clamped * el.clientWidth, behavior: "smooth" });
+  }
+
+  return (
+    <div
+      className={`mt-10 transition-[opacity,transform] duration-[900ms] ease-smooth sm:hidden ${
+        inView ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0"
+      }`}
+    >
+      <div
+        ref={trackRef}
+        onScroll={updatePage}
+        className="no-scrollbar flex snap-x snap-mandatory gap-4 overflow-x-auto"
+      >
+        {TESTIMONIALS.map((testimonial) => (
+          <div key={testimonial.name} className="w-full shrink-0 snap-start">
+            <TestimonialCard {...testimonial} />
+          </div>
+        ))}
+      </div>
+
+      <div className="mt-6 flex items-center justify-between">
+        <div className="flex items-center gap-1.5" aria-hidden="true">
+          {Array.from({ length: PAGE_COUNT }).map((_, index) => (
+            <span
+              key={index}
+              className={`h-1.5 rounded-full transition-all duration-300 ease-out ${
+                index === page ? "w-4 bg-accent" : "w-1.5 bg-line"
+              }`}
+            />
+          ))}
+        </div>
+
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            aria-label="Vorherige Bewertungen"
+            disabled={page === 0}
+            onClick={() => goToPage(page - 1)}
+            className="flex h-9 w-9 items-center justify-center rounded-full border border-line text-ink-soft transition-colors duration-150 hover:border-accent hover:text-accent disabled:pointer-events-none disabled:opacity-30"
+          >
+            <ChevronLeft size={16} strokeWidth={2} aria-hidden="true" />
+          </button>
+          <button
+            type="button"
+            aria-label="Weitere Bewertungen"
+            disabled={page === PAGE_COUNT - 1}
+            onClick={() => goToPage(page + 1)}
+            className="flex h-9 w-9 items-center justify-center rounded-full border border-line text-ink-soft transition-colors duration-150 hover:border-accent hover:text-accent disabled:pointer-events-none disabled:opacity-30"
+          >
+            <ChevronRight size={16} strokeWidth={2} aria-hidden="true" />
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
@@ -130,23 +205,27 @@ export default function Testimonials() {
           </div>
         </div>
 
-        <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:grid-rows-3">
+        {/* Desktop / tablet: full bento grid, unchanged */}
+        <div className="mt-10 hidden gap-4 sm:grid sm:grid-cols-2 lg:grid-cols-3 lg:grid-rows-3">
           {TESTIMONIALS.map((testimonial, index) => (
             <div
               key={testimonial.name}
-              className={`transition-[opacity,transform] duration-700 ease-out ${
+              className={`transition-[opacity,transform] duration-[900ms] ease-smooth ${
                 testimonial.featured ? "sm:col-span-2 lg:col-span-2 lg:row-span-2" : ""
               }`}
               style={{
-                transitionDelay: `${index * 90}ms`,
+                transitionDelay: `${index * 70}ms`,
                 opacity: inView ? 1 : 0,
-                transform: inView ? "translateY(0)" : "translateY(0.75rem)",
+                transform: inView ? "translateY(0)" : "translateY(1.1rem)",
               }}
             >
               <TestimonialCard {...testimonial} />
             </div>
           ))}
         </div>
+
+        {/* Mobile: 2-up snap carousel instead of six stacked cards */}
+        <MobileCarousel inView={inView} />
       </div>
     </section>
   );
