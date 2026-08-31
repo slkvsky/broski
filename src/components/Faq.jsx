@@ -21,7 +21,7 @@ export default function Faq() {
         <h2 className="font-display text-2xl font-semibold text-ink sm:text-3xl">Kurz beantwortet</h2>
 
         <div className="mt-10 border-t border-line">
-          <FaqAccordion items={FEATURED_FAQS} />
+          <FaqAccordion items={FEATURED_FAQS} inView={inView} />
         </div>
 
         <Button as={Link} to="/faq" variant="outline" className="mt-8">

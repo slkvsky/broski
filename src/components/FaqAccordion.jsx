@@ -1,11 +1,18 @@
 import { useState } from "react";
 import { ChevronDown } from "lucide-react";
 
-function FaqItem({ question, answer }) {
+function FaqItem({ question, answer, index, inView }) {
   const [open, setOpen] = useState(false);
 
   return (
-    <div className="border-b border-line py-5">
+    <div
+      className="border-b border-line py-5 transition-[opacity,transform] duration-500 ease-out"
+      style={{
+        transitionDelay: `${Math.min(index, 5) * 70}ms`,
+        opacity: inView ? 1 : 0,
+        transform: inView ? "translateY(0)" : "translateY(0.6rem)",
+      }}
+    >
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
@@ -32,11 +39,17 @@ function FaqItem({ question, answer }) {
   );
 }
 
-export default function FaqAccordion({ items }) {
+export default function FaqAccordion({ items, inView = true }) {
   return (
     <div>
-      {items.map((item) => (
-        <FaqItem key={item.id} question={item.question} answer={item.answer} />
+      {items.map((item, index) => (
+        <FaqItem
+          key={item.id}
+          question={item.question}
+          answer={item.answer}
+          index={index}
+          inView={inView}
+        />
       ))}
     </div>
   );
