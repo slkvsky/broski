@@ -1,10 +1,13 @@
 import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import FaqAccordion from "../components/FaqAccordion.jsx";
+import { useInView } from "../hooks/useInView.js";
 import { FAQS } from "../data/faq.js";
 import { CONTACT_EMAIL, WHATSAPP_HREF } from "../data/services.js";
 
 export default function FaqPage() {
+  const [listRef, listInView] = useInView();
+
   useEffect(() => {
     document.title = "Broski Detailing — Häufige Fragen";
     return () => {
@@ -34,8 +37,8 @@ export default function FaqPage() {
           <p className="mb-3 text-xs font-medium uppercase tracking-widest text-ink-soft">Häufige Fragen</p>
           <h1 className="font-display text-2xl font-semibold text-ink sm:text-3xl">Alle Fragen &amp; Antworten</h1>
 
-          <div className="mt-10 border-t border-line">
-            <FaqAccordion items={FAQS} />
+          <div ref={listRef} className="mt-10 border-t border-line">
+            <FaqAccordion items={FAQS} inView={listInView} />
           </div>
 
           <div className="mt-16 border-t border-line pt-10 text-center">

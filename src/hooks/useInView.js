@@ -7,7 +7,7 @@ import { useEffect, useRef, useState } from "react";
  * page — keeps below-the-fold sections from paying any cost before they're
  * scrolled near.
  */
-export function useInView({ rootMargin = "0px 0px -10% 0px", once = true } = {}) {
+export function useInView({ rootMargin = "0px 0px -22% 0px", once = true } = {}) {
   const ref = useRef(null);
   const [inView, setInView] = useState(false);
 
