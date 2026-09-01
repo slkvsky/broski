@@ -1,29 +1,42 @@
 import { useState } from "react";
-import { ArrowLeft, Check, ImagePlus, Sparkles, X } from "lucide-react";
+import { ArrowLeft, ChevronDown, ImagePlus, X } from "lucide-react";
 import { useInView } from "../hooks/useInView.js";
 import Button from "./Button.jsx";
-import { CONTACT_EMAIL, EXTRAS, PACKAGES } from "../data/services.js";
+import AutocompleteInput from "./AutocompleteInput.jsx";
+import { CONTACT_EMAIL, EXTRAS, LEISTUNGEN, VEHICLE_SIZES } from "../data/services.js";
+import { CAR_MAKES_MODELS } from "../data/carMakesModels.js";
 
-const VEHICLE_CLASSES = [
-  { id: "klein", label: "Kleinwagen", hint: "z. B. Polo, Corsa, Fiesta", multiplier: 1 },
-  { id: "mittel", label: "Mittelklasse / Kombi", hint: "z. B. Golf, A4, 3er", multiplier: 1.15 },
-  { id: "suv", label: "SUV / Van", hint: "z. B. Tiguan, X5, Sharan", multiplier: 1.3 },
-  { id: "sport", label: "Sportwagen / Luxusklasse", hint: "z. B. GT3 RS, Panamera", multiplier: 1.5 },
-];
+const STEPS = ["Fahrzeuggröße", "Leistung", "Extras", "Kontakt"];
 
-const STEPS = ["Fahrzeugklasse", "Leistung", "Zusatzleistungen", "Kontakt"];
+const CAR_MAKE_NAMES = CAR_MAKES_MODELS.map((m) => m.make);
 
-function roundPrice(value) {
-  return Math.round(value / 5) * 5;
+function modelsForMake(makeValue) {
+  const match = CAR_MAKES_MODELS.find((m) => m.make.toLowerCase() === makeValue.trim().toLowerCase());
+  return match ? match.models : [];
 }
 
-function OptionCard({ selected, title, hint, priceLabel, highlight = false, onClick }) {
+const INDIVIDUELLE_ANFRAGE_TEXT =
+  "Du hast einen individuellen Wunsch oder bist dir nicht sicher, was dein Fahrzeug braucht? Schick uns einfach deine Anfrage.";
+
+function priceLabelFor(item, sizeId) {
+  const price = item.getPrice(sizeId);
+  if (price == null) return "auf Anfrage";
+  const prefix = item.noAb ? "" : "ab ";
+  const suffix = item.priceSuffix ? ` ${item.priceSuffix}` : "";
+  return `${prefix}${price} €${suffix}`;
+}
+
+function OptionCard({ selected, title, hint, description, priceLabel, highlight = false, onClick }) {
+  const [expanded, setExpanded] = useState(false);
+
+  function toggleExpanded(event) {
+    event.stopPropagation();
+    setExpanded((v) => !v);
+  }
+
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      aria-pressed={selected}
-      className={`relative flex w-full flex-col gap-1 rounded-2xl border px-5 py-4 text-left transition-colors duration-150 ease-out ${
+    <div
+      className={`relative flex flex-col rounded-2xl border transition-colors duration-150 ease-out ${
         selected
           ? "border-ink bg-ink text-bg"
           : highlight
@@ -33,18 +46,90 @@ function OptionCard({ selected, title, hint, priceLabel, highlight = false, onCl
     >
       {highlight && !selected && (
         <span className="absolute -top-2.5 left-4 inline-flex items-center gap-1 rounded-full bg-accent px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-accent-ink">
-          <Sparkles size={11} strokeWidth={2.5} aria-hidden="true" />
           Empfehlung
         </span>
       )}
-      <span className="flex items-center justify-between gap-3">
-        <span className="font-display text-base font-medium">{title}</span>
-        {priceLabel && (
-          <span className={`shrink-0 text-sm ${selected ? "text-bg/80" : "text-ink-soft"}`}>{priceLabel}</span>
-        )}
+      <button type="button" onClick={onClick} aria-pressed={selected} className="flex w-full flex-col gap-1 px-5 py-4 text-left">
+        <span className="flex items-center justify-between gap-3">
+          <span className="font-display text-base font-medium">{title}</span>
+          <span className="flex shrink-0 items-center gap-2">
+            {priceLabel && (
+              <span className={`text-sm ${selected ? "text-bg/80" : "text-ink-soft"}`}>{priceLabel}</span>
+            )}
+            {description && (
+              <span
+                role="button"
+                tabIndex={0}
+                onClick={toggleExpanded}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    toggleExpanded(e);
+                  }
+                }}
+                aria-expanded={expanded}
+                aria-label={expanded ? "Details ausblenden" : "Details anzeigen"}
+                className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border transition-transform duration-150 ${
+                  selected ? "border-bg/40 text-bg/80" : "border-line text-ink-soft"
+                } ${expanded ? "rotate-180" : ""}`}
+              >
+                <ChevronDown size={12} strokeWidth={2.5} aria-hidden="true" />
+              </span>
+            )}
+          </span>
+        </span>
+        {hint && <span className={`text-sm ${selected ? "text-bg/70" : "text-ink-soft"}`}>{hint}</span>}
+      </button>
+      {description && expanded && (
+        <p className={`px-5 pb-4 text-sm ${selected ? "text-bg/70" : "text-ink-soft"}`}>{description}</p>
+      )}
+    </div>
+  );
+}
+
+function LederExtraCard({ extra, selectedVariantId, onSelectVariant }) {
+  const [expanded, setExpanded] = useState(false);
+
+  return (
+    <div className="relative flex flex-col gap-4 rounded-2xl border-2 border-accent bg-accent/10 p-5 sm:col-span-2">
+      <span className="absolute -top-2.5 left-4 inline-flex items-center gap-1 rounded-full bg-accent px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-accent-ink">
+        Empfehlung
       </span>
-      {hint && <span className={`text-sm ${selected ? "text-bg/70" : "text-ink-soft"}`}>{hint}</span>}
-    </button>
+
+      <div className="mt-2 flex flex-col gap-4 sm:flex-row sm:items-center">
+        <div className="flex-1">
+          <p className="font-display text-base font-medium text-ink">{extra.label}</p>
+          <button
+            type="button"
+            onClick={() => setExpanded((v) => !v)}
+            className="mt-1 text-sm text-ink-soft underline decoration-line underline-offset-4 transition-colors duration-150 hover:text-ink"
+          >
+            {expanded ? "Weniger anzeigen" : "Details anzeigen"}
+          </button>
+          {expanded && <p className="mt-2 text-sm text-ink-soft">{extra.description}</p>}
+        </div>
+      </div>
+
+      <div className="grid gap-2 sm:grid-cols-3">
+        {extra.variants.map((variant) => {
+          const active = selectedVariantId === variant.id;
+          return (
+            <button
+              key={variant.id}
+              type="button"
+              onClick={() => onSelectVariant(active ? null : variant.id)}
+              aria-pressed={active}
+              className={`rounded-xl border px-4 py-3 text-left text-sm transition-colors duration-150 ${
+                active ? "border-ink bg-ink text-bg" : "border-line bg-bg text-ink hover:border-ink/40"
+              }`}
+            >
+              <span className="block font-medium">{variant.label}</span>
+              <span className={active ? "text-bg/70" : "text-ink-soft"}>ab {variant.getPrice()} €</span>
+            </button>
+          );
+        })}
+      </div>
+    </div>
   );
 }
 
@@ -67,7 +152,7 @@ function StepIndicator({ step }) {
                   : "border-line text-ink-soft"
             }`}
           >
-            {i < step ? <Check size={12} strokeWidth={3} aria-hidden="true" /> : i + 1}
+            {i + 1}
           </span>
           {label}
         </li>
@@ -76,16 +161,46 @@ function StepIndicator({ step }) {
   );
 }
 
-function PriceBar({ total }) {
+function PriceBar({ total, unknown }) {
   return (
     <div className="mt-8 flex items-center justify-between gap-4 rounded-2xl border border-line bg-bg-alt px-5 py-4">
       <div>
         <p className="text-xs uppercase tracking-widest text-ink-soft">Richtpreis</p>
-        <p className="font-display text-xl font-semibold text-ink">ab {total} €</p>
+        <p className="font-display text-xl font-semibold text-ink">{unknown ? "auf Anfrage" : `ab ${total} €`}</p>
       </div>
       <p className="max-w-[11rem] text-right text-xs text-ink-soft">
         Unverbindlich — finaler Preis nach kurzer Sichtprüfung vor Ort.
       </p>
+    </div>
+  );
+}
+
+function Zusammenfassung({ vehicleLabel, leistungLabel, extraLabels, totalLabel }) {
+  return (
+    <div className="mb-8 rounded-2xl border border-line bg-bg-alt px-5 py-5">
+      <p className="text-xs uppercase tracking-widest text-ink-soft">Zusammenfassung</p>
+      <dl className="mt-3 flex flex-col gap-2 text-sm">
+        <div className="flex items-baseline justify-between gap-4">
+          <dt className="text-ink-soft">Fahrzeuggröße</dt>
+          <dd className="text-right text-ink">{vehicleLabel}</dd>
+        </div>
+        <div className="flex items-baseline justify-between gap-4">
+          <dt className="text-ink-soft">Leistung</dt>
+          <dd className="text-right text-ink">{leistungLabel}</dd>
+        </div>
+        {extraLabels.length > 0 && (
+          <div className="flex items-baseline justify-between gap-4">
+            <dt className="text-ink-soft">Extras</dt>
+            <dd className="text-right text-ink">{extraLabels.join(", ")}</dd>
+          </div>
+        )}
+      </dl>
+      <div className="mt-4 border-t border-line pt-4">
+        <p className="font-display text-lg font-semibold text-ink">{totalLabel}</p>
+        <p className="mt-1 text-xs text-ink-soft">
+          Unverbindlicher Richtpreis. Der endgültige Preis richtet sich nach Zustand und tatsächlichem Aufwand.
+        </p>
+      </div>
     </div>
   );
 }
@@ -116,41 +231,274 @@ function Confirmation({ title, description, onReset }) {
   );
 }
 
-const EMPTY_CONTACT = { name: "", email: "", phone: "", message: "" };
+function IndividuelleAnfrageBanner({ onClick }) {
+  return (
+    <div className="mt-6 flex flex-col gap-3 rounded-2xl border border-line bg-bg-alt px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+      <p className="text-sm text-ink-soft">{INDIVIDUELLE_ANFRAGE_TEXT}</p>
+      <button
+        type="button"
+        onClick={onClick}
+        className="inline-flex shrink-0 items-center gap-2 self-start rounded-full border border-ink px-5 py-2.5 text-sm font-medium text-ink transition-colors duration-150 hover:bg-ink hover:text-bg sm:self-auto"
+      >
+        Individuelle Anfrage
+      </button>
+    </div>
+  );
+}
+
+function PreisHinweis() {
+  return (
+    <div className="mt-12 flex flex-col gap-2 border-t border-line pt-6 text-xs text-ink-soft">
+      <p>
+        Alle Preise verstehen sich als Einstiegspreise. Der endgültige Preis richtet sich nach Fahrzeuggröße,
+        Zustand, Verschmutzungsgrad und tatsächlichem Arbeitsaufwand.
+      </p>
+      <p>Weitere individuelle Leistungen sind auf Anfrage möglich.</p>
+    </div>
+  );
+}
+
+function ContactFields({ idPrefix, contact, setContact, files, setFiles }) {
+  function update(field) {
+    return (e) => setContact((c) => ({ ...c, [field]: e.target.value }));
+  }
+
+  function handleFiles(event) {
+    const selected = Array.from(event.target.files ?? []);
+    setFiles((prev) => [...prev, ...selected]);
+    event.target.value = "";
+  }
+
+  function removeFile(index) {
+    setFiles((prev) => prev.filter((_, i) => i !== index));
+  }
+
+  return (
+    <div className="flex flex-col gap-6">
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div>
+          <label htmlFor={`${idPrefix}-name`} className="mb-2 block text-sm text-ink-soft">
+            Name
+          </label>
+          <input
+            id={`${idPrefix}-name`}
+            type="text"
+            required
+            value={contact.name}
+            onChange={update("name")}
+            className="w-full rounded-xl border border-line bg-bg px-4 py-3 text-sm text-ink focus:border-ink focus:outline-none"
+          />
+        </div>
+        <div>
+          <label htmlFor={`${idPrefix}-phone`} className="mb-2 block text-sm text-ink-soft">
+            Telefon
+          </label>
+          <input
+            id={`${idPrefix}-phone`}
+            type="tel"
+            required
+            value={contact.phone}
+            onChange={update("phone")}
+            className="w-full rounded-xl border border-line bg-bg px-4 py-3 text-sm text-ink focus:border-ink focus:outline-none"
+          />
+        </div>
+        <div>
+          <label htmlFor={`${idPrefix}-email`} className="mb-2 block text-sm text-ink-soft">
+            E-Mail <span className="text-ink-soft/70">(optional)</span>
+          </label>
+          <input
+            id={`${idPrefix}-email`}
+            type="email"
+            value={contact.email}
+            onChange={update("email")}
+            className="w-full rounded-xl border border-line bg-bg px-4 py-3 text-sm text-ink focus:border-ink focus:outline-none"
+          />
+        </div>
+        <div>
+          <label htmlFor={`${idPrefix}-address`} className="mb-2 block text-sm text-ink-soft">
+            Adresse <span className="text-ink-soft/70">(optional)</span>
+          </label>
+          <input
+            id={`${idPrefix}-address`}
+            type="text"
+            value={contact.address}
+            onChange={update("address")}
+            className="w-full rounded-xl border border-line bg-bg px-4 py-3 text-sm text-ink focus:border-ink focus:outline-none"
+          />
+        </div>
+      </div>
+
+      <div>
+        <label htmlFor={`${idPrefix}-message`} className="mb-2 block text-sm text-ink-soft">
+          Nachricht <span className="text-ink-soft/70">(optional)</span>
+        </label>
+        <textarea
+          id={`${idPrefix}-message`}
+          rows={4}
+          value={contact.message}
+          onChange={update("message")}
+          placeholder="Beschreibe kurz dein Fahrzeug, deinen Wunsch, deinen Standort oder besondere Anforderungen."
+          className="w-full rounded-xl border border-line bg-bg px-4 py-3 text-sm text-ink placeholder:text-ink-soft/60 focus:border-ink focus:outline-none"
+        />
+      </div>
+
+      <div>
+        <p className="mb-2 text-sm text-ink-soft">
+          Fahrzeugdaten <span className="text-ink-soft/70">(optional)</span>
+        </p>
+        <div className="grid gap-3 sm:grid-cols-3">
+          <AutocompleteInput
+            id={`${idPrefix}-marke`}
+            ariaLabel="Marke"
+            placeholder="Marke"
+            value={contact.marke}
+            onChange={(v) => setContact((c) => ({ ...c, marke: v }))}
+            suggestions={CAR_MAKE_NAMES}
+          />
+          <AutocompleteInput
+            id={`${idPrefix}-modell`}
+            ariaLabel="Modell"
+            placeholder="Modell"
+            value={contact.modell}
+            onChange={(v) => setContact((c) => ({ ...c, modell: v }))}
+            suggestions={modelsForMake(contact.marke)}
+          />
+          <input
+            type="text"
+            aria-label="Baujahr"
+            placeholder="Baujahr"
+            value={contact.baujahr}
+            onChange={update("baujahr")}
+            className="w-full rounded-xl border border-line bg-bg px-4 py-3 text-sm text-ink placeholder:text-ink-soft/60 focus:border-ink focus:outline-none"
+          />
+        </div>
+        <p className="mt-2 text-xs text-ink-soft">
+          Fahrzeugdaten werden für die genaue Einschätzung benötigt, können aber auch später per WhatsApp
+          übermittelt werden.
+        </p>
+      </div>
+
+      <div>
+        <span className="mb-2 block text-sm text-ink-soft">
+          Fotos <span className="text-ink-soft/70">(optional)</span>
+        </span>
+        <label
+          htmlFor={`${idPrefix}-photos`}
+          className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-line px-6 py-8 text-center text-sm text-ink-soft transition-colors duration-150 hover:border-ink/40"
+        >
+          <ImagePlus size={22} strokeWidth={1.75} aria-hidden="true" />
+          <span>Fahrzeugfotos hochladen</span>
+          <input
+            id={`${idPrefix}-photos`}
+            type="file"
+            accept="image/*"
+            multiple
+            onChange={handleFiles}
+            className="sr-only"
+          />
+        </label>
+        <p className="mt-2 text-xs text-ink-soft">
+          Fotos helfen uns bei der Einschätzung und können hier oder später per WhatsApp gesendet werden.
+        </p>
+        {files.length > 0 && (
+          <ul className="mt-3 flex flex-wrap gap-2">
+            {files.map((file, i) => (
+              <li
+                key={`${file.name}-${i}`}
+                className="flex items-center gap-2 rounded-full border border-line bg-bg-alt px-3 py-1.5 text-xs text-ink-soft"
+              >
+                {file.name}
+                <button
+                  type="button"
+                  onClick={() => removeFile(i)}
+                  aria-label={`${file.name} entfernen`}
+                  className="text-ink-soft transition-colors duration-150 hover:text-ink"
+                >
+                  <X size={12} strokeWidth={2.5} aria-hidden="true" />
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+    </div>
+  );
+}
+
+const EMPTY_CONTACT = {
+  name: "",
+  phone: "",
+  email: "",
+  address: "",
+  message: "",
+  marke: "",
+  modell: "",
+  baujahr: "",
+};
+
+function buildMailtoHref(subject, lines, contact, files) {
+  const body = [
+    ...lines,
+    "",
+    `Name: ${contact.name}`,
+    `Telefon: ${contact.phone}`,
+    contact.email ? `E-Mail: ${contact.email}` : null,
+    contact.address ? `Adresse: ${contact.address}` : null,
+    contact.marke ? `Marke: ${contact.marke}` : null,
+    contact.modell ? `Modell: ${contact.modell}` : null,
+    contact.baujahr ? `Baujahr: ${contact.baujahr}` : null,
+    contact.message ? `Nachricht: ${contact.message}` : null,
+    files.length ? `Fotos: ${files.length} Datei(en) ausgewählt — bitte manuell an diese E-Mail anhängen.` : null,
+  ]
+    .filter((line) => line !== null)
+    .join("\n");
+
+  return `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+}
 
 export default function Kalkulator() {
   const [ref, inView] = useInView();
   const [mode, setMode] = useState("calculator");
 
   const [step, setStep] = useState(0);
-  const [vehicleClassId, setVehicleClassId] = useState(null);
-  const [vehicleInfo, setVehicleInfo] = useState("");
-  const [packageId, setPackageId] = useState(null);
+  const [vehicleSizeId, setVehicleSizeId] = useState(null);
+  const [leistungId, setLeistungId] = useState(null);
   const [extraIds, setExtraIds] = useState([]);
+  const [lederVariantId, setLederVariantId] = useState(null);
   const [contact, setContact] = useState(EMPTY_CONTACT);
+  const [files, setFiles] = useState([]);
   const [submitted, setSubmitted] = useState(false);
 
-  const [customVehicleInfo, setCustomVehicleInfo] = useState("");
-  const [customMessage, setCustomMessage] = useState("");
-  const [customFiles, setCustomFiles] = useState([]);
   const [customContact, setCustomContact] = useState(EMPTY_CONTACT);
+  const [customFiles, setCustomFiles] = useState([]);
   const [customSubmitted, setCustomSubmitted] = useState(false);
 
-  const selectedVehicleClass = VEHICLE_CLASSES.find((v) => v.id === vehicleClassId) ?? null;
-  const selectedPackage = PACKAGES.find((p) => p.id === packageId) ?? null;
-  const selectedExtras = EXTRAS.filter((e) => extraIds.includes(e.id));
+  const lederExtra = EXTRAS.find((e) => e.variants);
+  const simpleExtras = EXTRAS.filter((e) => !e.variants);
 
-  const packagePrice = selectedPackage
-    ? roundPrice(selectedPackage.basePrice * (selectedVehicleClass?.multiplier ?? 1))
-    : 0;
-  const extrasTotal = selectedExtras.reduce((sum, e) => sum + e.price, 0);
-  const totalPrice = packagePrice + extrasTotal;
+  const selectedSize = VEHICLE_SIZES.find((v) => v.id === vehicleSizeId) ?? null;
+  const selectedLeistung = LEISTUNGEN.find((l) => l.id === leistungId) ?? null;
+  // Extras already bundled into the chosen Leistung package (e.g. One-Step-Politur is
+  // included in Komplett-Aufbereitung + Lackschutz) are hidden and excluded from pricing here.
+  const visibleSimpleExtras = simpleExtras.filter(
+    (e) => !selectedLeistung?.includesExtraIds?.includes(e.id)
+  );
+  const selectedSimpleExtras = visibleSimpleExtras.filter((e) => extraIds.includes(e.id));
+  const lederVariant = lederExtra?.variants.find((v) => v.id === lederVariantId) ?? null;
+
+  const leistungPrice = selectedLeistung && vehicleSizeId ? selectedLeistung.getPrice(vehicleSizeId) : null;
+  const extrasPriceUnknown = selectedSimpleExtras.some((e) => e.getPrice(vehicleSizeId) == null);
+  const extrasTotal =
+    selectedSimpleExtras.reduce((sum, e) => sum + (e.getPrice(vehicleSizeId) ?? 0), 0) +
+    (lederVariant ? lederVariant.getPrice() : 0);
+  const totalPrice = (leistungPrice ?? 0) + extrasTotal;
+  const priceUnknown = Boolean(leistungId) && (leistungPrice == null || extrasPriceUnknown);
 
   function toggleExtra(id) {
     setExtraIds((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
   }
 
-  const canGoNext = step === 0 ? Boolean(vehicleClassId) : step === 1 ? Boolean(packageId) : true;
+  const canGoNext = step === 0 ? Boolean(vehicleSizeId) : step === 1 ? Boolean(leistungId) : true;
 
   function goNext() {
     if (!canGoNext) return;
@@ -161,82 +509,45 @@ export default function Kalkulator() {
     setStep((s) => Math.max(s - 1, 0));
   }
 
-  function buildMailto() {
-    const subject = `Aufbereitungsanfrage – ${selectedPackage?.label ?? "Kalkulator"}`;
-    const body = [
-      `Fahrzeugklasse: ${selectedVehicleClass?.label ?? "–"}`,
-      vehicleInfo ? `Marke/Modell: ${vehicleInfo}` : null,
-      `Leistung: ${selectedPackage?.label ?? "–"}`,
-      selectedExtras.length ? `Zusatzleistungen: ${selectedExtras.map((e) => e.label).join(", ")}` : "Zusatzleistungen: keine",
-      `Richtpreis: ab ${totalPrice} €`,
-      "",
-      `Name: ${contact.name}`,
-      `E-Mail: ${contact.email}`,
-      contact.phone ? `Telefon: ${contact.phone}` : null,
-      contact.message ? `Nachricht: ${contact.message}` : null,
-    ]
-      .filter((line) => line !== null)
-      .join("\n");
-
-    return `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-  }
-
   function handleSubmit(event) {
     event.preventDefault();
-    window.location.href = buildMailto();
+    const extraLabels = [
+      ...selectedSimpleExtras.map((e) => e.label),
+      lederVariant ? `${lederExtra.label} – ${lederVariant.label}` : null,
+    ].filter(Boolean);
+
+    const subject = `Aufbereitungsanfrage – ${selectedLeistung?.label ?? "Kalkulator"}`;
+    const lines = [
+      `Fahrzeuggröße: ${selectedSize?.label ?? "–"}`,
+      `Leistung: ${selectedLeistung?.label ?? "–"}`,
+      extraLabels.length ? `Extras: ${extraLabels.join(", ")}` : "Extras: keine",
+      `Richtpreis: ${priceUnknown ? "auf Anfrage" : `ab ${totalPrice} €`}`,
+    ];
+    const href = buildMailtoHref(subject, lines, contact, files);
+    window.location.href = href;
     setSubmitted(true);
   }
 
   function resetCalculator() {
     setStep(0);
-    setVehicleClassId(null);
-    setVehicleInfo("");
-    setPackageId(null);
+    setVehicleSizeId(null);
+    setLeistungId(null);
     setExtraIds([]);
+    setLederVariantId(null);
     setContact(EMPTY_CONTACT);
+    setFiles([]);
     setSubmitted(false);
-  }
-
-  function handleCustomFiles(event) {
-    const files = Array.from(event.target.files ?? []);
-    setCustomFiles((prev) => [...prev, ...files]);
-    event.target.value = "";
-  }
-
-  function removeCustomFile(index) {
-    setCustomFiles((prev) => prev.filter((_, i) => i !== index));
-  }
-
-  function buildCustomMailto() {
-    const subject = "Individuelle Aufbereitungsanfrage";
-    const body = [
-      customVehicleInfo ? `Marke/Modell: ${customVehicleInfo}` : null,
-      `Nachricht: ${customMessage || "–"}`,
-      customFiles.length
-        ? `Fotos: ${customFiles.length} Datei(en) ausgewählt — bitte manuell an diese E-Mail anhängen.`
-        : null,
-      "",
-      `Name: ${customContact.name}`,
-      `E-Mail: ${customContact.email}`,
-      customContact.phone ? `Telefon: ${customContact.phone}` : null,
-    ]
-      .filter((line) => line !== null)
-      .join("\n");
-
-    return `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
   }
 
   function handleCustomSubmit(event) {
     event.preventDefault();
-    window.location.href = buildCustomMailto();
+    window.location.href = buildMailtoHref("Individuelle Aufbereitungsanfrage", [], customContact, customFiles);
     setCustomSubmitted(true);
   }
 
   function resetCustom() {
-    setCustomVehicleInfo("");
-    setCustomMessage("");
-    setCustomFiles([]);
     setCustomContact(EMPTY_CONTACT);
+    setCustomFiles([]);
     setCustomSubmitted(false);
   }
 
@@ -260,7 +571,7 @@ export default function Kalkulator() {
           <SectionHeader
             eyebrow="Individuelle Anfrage"
             title="Passt keine Standard-Option?"
-            subtitle="Beschreibe dein Fahrzeug und dein Anliegen, lade optional Fotos hoch — wir melden uns mit einem passenden Angebot."
+            subtitle={INDIVIDUELLE_ANFRAGE_TEXT}
           />
 
           <div className="mt-10">
@@ -277,124 +588,22 @@ export default function Kalkulator() {
                 />
               </div>
             ) : (
-              <form onSubmit={handleCustomSubmit} key="custom-form" className="flex flex-col gap-6 animate-step-fade">
-                <div>
-                  <label htmlFor="custom-vehicle" className="mb-2 block text-sm text-ink-soft">
-                    Marke &amp; Modell <span className="text-ink-soft/70">(optional)</span>
-                  </label>
-                  <input
-                    id="custom-vehicle"
-                    type="text"
-                    value={customVehicleInfo}
-                    onChange={(e) => setCustomVehicleInfo(e.target.value)}
-                    placeholder="z. B. Porsche 911 GT3 RS"
-                    className="w-full rounded-xl border border-line bg-bg px-4 py-3 text-sm text-ink placeholder:text-ink-soft/60 focus:border-ink focus:outline-none"
-                  />
-                </div>
-
-                <div>
-                  <label htmlFor="custom-message" className="mb-2 block text-sm text-ink-soft">
-                    Was möchtest du aufbereiten lassen?
-                  </label>
-                  <textarea
-                    id="custom-message"
-                    required
-                    rows={4}
-                    value={customMessage}
-                    onChange={(e) => setCustomMessage(e.target.value)}
-                    placeholder="Beschreibe kurz Zustand und Wunsch …"
-                    className="w-full rounded-xl border border-line bg-bg px-4 py-3 text-sm text-ink placeholder:text-ink-soft/60 focus:border-ink focus:outline-none"
-                  />
-                </div>
-
-                <div>
-                  <span className="mb-2 block text-sm text-ink-soft">
-                    Fotos <span className="text-ink-soft/70">(optional)</span>
-                  </span>
-                  <label
-                    htmlFor="custom-photos"
-                    className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-line px-6 py-8 text-center text-sm text-ink-soft transition-colors duration-150 hover:border-ink/40"
-                  >
-                    <ImagePlus size={22} strokeWidth={1.75} aria-hidden="true" />
-                    <span>Fotos auswählen</span>
-                    <input
-                      id="custom-photos"
-                      type="file"
-                      accept="image/*"
-                      multiple
-                      onChange={handleCustomFiles}
-                      className="sr-only"
-                    />
-                  </label>
-                  {customFiles.length > 0 && (
-                    <ul className="mt-3 flex flex-wrap gap-2">
-                      {customFiles.map((file, i) => (
-                        <li
-                          key={`${file.name}-${i}`}
-                          className="flex items-center gap-2 rounded-full border border-line bg-bg-alt px-3 py-1.5 text-xs text-ink-soft"
-                        >
-                          {file.name}
-                          <button
-                            type="button"
-                            onClick={() => removeCustomFile(i)}
-                            aria-label={`${file.name} entfernen`}
-                            className="text-ink-soft transition-colors duration-150 hover:text-ink"
-                          >
-                            <X size={12} strokeWidth={2.5} aria-hidden="true" />
-                          </button>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </div>
-
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <div>
-                    <label htmlFor="custom-name" className="mb-2 block text-sm text-ink-soft">
-                      Name
-                    </label>
-                    <input
-                      id="custom-name"
-                      type="text"
-                      required
-                      value={customContact.name}
-                      onChange={(e) => setCustomContact((c) => ({ ...c, name: e.target.value }))}
-                      className="w-full rounded-xl border border-line bg-bg px-4 py-3 text-sm text-ink focus:border-ink focus:outline-none"
-                    />
-                  </div>
-                  <div>
-                    <label htmlFor="custom-email" className="mb-2 block text-sm text-ink-soft">
-                      E-Mail
-                    </label>
-                    <input
-                      id="custom-email"
-                      type="email"
-                      required
-                      value={customContact.email}
-                      onChange={(e) => setCustomContact((c) => ({ ...c, email: e.target.value }))}
-                      className="w-full rounded-xl border border-line bg-bg px-4 py-3 text-sm text-ink focus:border-ink focus:outline-none"
-                    />
-                  </div>
-                  <div className="sm:col-span-2">
-                    <label htmlFor="custom-phone" className="mb-2 block text-sm text-ink-soft">
-                      Telefon <span className="text-ink-soft/70">(optional)</span>
-                    </label>
-                    <input
-                      id="custom-phone"
-                      type="tel"
-                      value={customContact.phone}
-                      onChange={(e) => setCustomContact((c) => ({ ...c, phone: e.target.value }))}
-                      className="w-full rounded-xl border border-line bg-bg px-4 py-3 text-sm text-ink focus:border-ink focus:outline-none"
-                    />
-                  </div>
-                </div>
-
-                <Button type="submit" variant="primary" className="self-start">
+              <form onSubmit={handleCustomSubmit} key="custom-form" className="animate-step-fade">
+                <ContactFields
+                  idPrefix="custom"
+                  contact={customContact}
+                  setContact={setCustomContact}
+                  files={customFiles}
+                  setFiles={setCustomFiles}
+                />
+                <Button type="submit" variant="primary" className="mt-6 self-start">
                   Anfrage senden
                 </Button>
               </form>
             )}
           </div>
+
+          <PreisHinweis />
         </div>
       </section>
     );
@@ -406,8 +615,10 @@ export default function Kalkulator() {
         <SectionHeader
           eyebrow="Kalkulator"
           title="Berechne deinen Richtpreis"
-          subtitle="In drei Schritten zum unverbindlichen Preis — deine Kontaktdaten brauchen wir erst ganz am Ende."
+          subtitle="In wenigen Schritten zum unverbindlichen Preis — deine Kontaktdaten brauchen wir erst ganz am Ende."
         />
+
+        {!submitted && <IndividuelleAnfrageBanner onClick={() => setMode("custom")} />}
 
         <div className="mt-10">
           {submitted ? (
@@ -423,152 +634,100 @@ export default function Kalkulator() {
               <StepIndicator step={step} />
 
               <div key={step} className="animate-step-fade">
-              {step === 0 && (
-                <div>
+                {step === 0 && (
                   <div className="grid gap-3 sm:grid-cols-2">
-                    {VEHICLE_CLASSES.map((vc) => (
+                    {VEHICLE_SIZES.map((vs) => (
                       <OptionCard
-                        key={vc.id}
-                        selected={vehicleClassId === vc.id}
-                        title={vc.label}
-                        hint={vc.hint}
-                        onClick={() => setVehicleClassId(vc.id)}
+                        key={vs.id}
+                        selected={vehicleSizeId === vs.id}
+                        title={vs.label}
+                        hint={vs.hint}
+                        onClick={() => setVehicleSizeId(vs.id)}
                       />
                     ))}
                   </div>
-                  <div className="mt-6">
-                    <label htmlFor="vehicle-info" className="mb-2 block text-sm text-ink-soft">
-                      Marke &amp; Modell <span className="text-ink-soft/70">(optional)</span>
-                    </label>
-                    <input
-                      id="vehicle-info"
-                      type="text"
-                      value={vehicleInfo}
-                      onChange={(e) => setVehicleInfo(e.target.value)}
-                      placeholder="z. B. Porsche 911 GT3 RS"
-                      className="w-full rounded-xl border border-line bg-bg px-4 py-3 text-sm text-ink placeholder:text-ink-soft/60 focus:border-ink focus:outline-none"
-                    />
+                )}
+
+                {step === 1 && (
+                  <div className="grid gap-3">
+                    {LEISTUNGEN.map((l) => (
+                      <OptionCard
+                        key={l.id}
+                        selected={leistungId === l.id}
+                        title={l.label}
+                        description={l.description}
+                        priceLabel={priceLabelFor(l, vehicleSizeId)}
+                        onClick={() => setLeistungId(l.id)}
+                      />
+                    ))}
                   </div>
-                </div>
-              )}
+                )}
 
-              {step === 1 && (
-                <div className="grid gap-3">
-                  {PACKAGES.map((pkg) => (
-                    <OptionCard
-                      key={pkg.id}
-                      selected={packageId === pkg.id}
-                      title={pkg.label}
-                      hint={pkg.desc}
-                      priceLabel={`ab ${roundPrice(pkg.basePrice * (selectedVehicleClass?.multiplier ?? 1))} €`}
-                      onClick={() => setPackageId(pkg.id)}
-                    />
-                  ))}
-                </div>
-              )}
-
-              {step === 2 && (
-                <div className="grid gap-3 sm:grid-cols-2">
-                  {EXTRAS.map((extra) => (
-                    <OptionCard
-                      key={extra.id}
-                      selected={extraIds.includes(extra.id)}
-                      title={extra.label}
-                      hint={extra.desc}
-                      priceLabel={`+${extra.price} €`}
-                      highlight={extra.highlight}
-                      onClick={() => toggleExtra(extra.id)}
-                    />
-                  ))}
-                </div>
-              )}
-
-              {step === 3 && (
-                <form id="contact-form" onSubmit={handleSubmit} className="flex flex-col gap-4">
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    <div>
-                      <label htmlFor="contact-name" className="mb-2 block text-sm text-ink-soft">
-                        Name
-                      </label>
-                      <input
-                        id="contact-name"
-                        type="text"
-                        required
-                        value={contact.name}
-                        onChange={(e) => setContact((c) => ({ ...c, name: e.target.value }))}
-                        className="w-full rounded-xl border border-line bg-bg px-4 py-3 text-sm text-ink focus:border-ink focus:outline-none"
+                {step === 2 && (
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    {visibleSimpleExtras.map((extra) => (
+                      <OptionCard
+                        key={extra.id}
+                        selected={extraIds.includes(extra.id)}
+                        title={extra.label}
+                        description={extra.description}
+                        priceLabel={priceLabelFor(extra, vehicleSizeId)}
+                        onClick={() => toggleExtra(extra.id)}
                       />
-                    </div>
-                    <div>
-                      <label htmlFor="contact-email" className="mb-2 block text-sm text-ink-soft">
-                        E-Mail
-                      </label>
-                      <input
-                        id="contact-email"
-                        type="email"
-                        required
-                        value={contact.email}
-                        onChange={(e) => setContact((c) => ({ ...c, email: e.target.value }))}
-                        className="w-full rounded-xl border border-line bg-bg px-4 py-3 text-sm text-ink focus:border-ink focus:outline-none"
+                    ))}
+                    {lederExtra && (
+                      <LederExtraCard
+                        extra={lederExtra}
+                        selectedVariantId={lederVariantId}
+                        onSelectVariant={setLederVariantId}
                       />
-                    </div>
-                    <div>
-                      <label htmlFor="contact-phone" className="mb-2 block text-sm text-ink-soft">
-                        Telefon <span className="text-ink-soft/70">(optional)</span>
-                      </label>
-                      <input
-                        id="contact-phone"
-                        type="tel"
-                        value={contact.phone}
-                        onChange={(e) => setContact((c) => ({ ...c, phone: e.target.value }))}
-                        className="w-full rounded-xl border border-line bg-bg px-4 py-3 text-sm text-ink focus:border-ink focus:outline-none"
-                      />
-                    </div>
-                    <div>
-                      <label htmlFor="contact-message" className="mb-2 block text-sm text-ink-soft">
-                        Nachricht <span className="text-ink-soft/70">(optional)</span>
-                      </label>
-                      <input
-                        id="contact-message"
-                        type="text"
-                        value={contact.message}
-                        onChange={(e) => setContact((c) => ({ ...c, message: e.target.value }))}
-                        className="w-full rounded-xl border border-line bg-bg px-4 py-3 text-sm text-ink focus:border-ink focus:outline-none"
-                      />
-                    </div>
+                    )}
                   </div>
-                </form>
-              )}
+                )}
+
+                {step === 3 && (
+                  <div>
+                    <Zusammenfassung
+                      vehicleLabel={selectedSize?.label ?? "–"}
+                      leistungLabel={selectedLeistung?.label ?? "–"}
+                      extraLabels={[
+                        ...selectedSimpleExtras.map((e) => e.label),
+                        lederVariant ? `${lederExtra.label} – ${lederVariant.label}` : null,
+                      ].filter(Boolean)}
+                      totalLabel={priceUnknown ? "Preis auf Anfrage" : `Richtpreis ab ${totalPrice} €`}
+                    />
+                    <form id="contact-form" onSubmit={handleSubmit}>
+                      <ContactFields
+                        idPrefix="contact"
+                        contact={contact}
+                        setContact={setContact}
+                        files={files}
+                        setFiles={setFiles}
+                      />
+                    </form>
+                  </div>
+                )}
               </div>
 
-              {step > 0 && selectedPackage && <PriceBar total={totalPrice} />}
+              {step > 0 && step < 3 && selectedLeistung && <PriceBar total={totalPrice} unknown={priceUnknown} />}
 
-              {step === 3 ? (
-                <div className="mt-8 flex items-center justify-between">
-                  <button
-                    type="button"
-                    onClick={goBack}
-                    className="inline-flex items-center gap-2 text-sm font-medium text-ink-soft transition-colors duration-150 hover:text-ink"
-                  >
-                    <ArrowLeft size={16} aria-hidden="true" />
-                    Zurück
-                  </button>
-                  <Button type="submit" form="contact-form" variant="primary">
+              <div className="mt-8 flex items-center justify-between">
+                <button
+                  type="button"
+                  onClick={goBack}
+                  disabled={step === 0}
+                  className="inline-flex items-center gap-2 text-sm font-medium text-ink-soft transition-colors duration-150 hover:text-ink disabled:pointer-events-none disabled:opacity-0"
+                >
+                  <ArrowLeft size={16} aria-hidden="true" />
+                  Zurück
+                </button>
+                {step === 3 ? (
+                  <Button key="submit" type="submit" form="contact-form" variant="primary">
                     Anfrage senden
                   </Button>
-                </div>
-              ) : (
-                <div className="mt-8 flex items-center justify-between">
-                  <button
-                    type="button"
-                    onClick={goBack}
-                    disabled={step === 0}
-                    className="inline-flex items-center gap-2 text-sm font-medium text-ink-soft transition-colors duration-150 hover:text-ink disabled:pointer-events-none disabled:opacity-0"
-                  >
-                    <ArrowLeft size={16} aria-hidden="true" />
-                    Zurück
-                  </button>
+                ) : (
                   <Button
+                    key="next"
                     type="button"
                     variant="primary"
                     onClick={goNext}
@@ -576,19 +735,13 @@ export default function Kalkulator() {
                   >
                     Weiter
                   </Button>
-                </div>
-              )}
-
-              <button
-                type="button"
-                onClick={() => setMode("custom")}
-                className="mt-8 block text-sm text-ink-soft underline decoration-line underline-offset-4 transition-colors duration-150 hover:text-ink"
-              >
-                Passt keine Option? Individuelle Anfrage mit Fotos stellen →
-              </button>
+                )}
+              </div>
             </div>
           )}
         </div>
+
+        <PreisHinweis />
       </div>
     </section>
   );
