@@ -208,6 +208,13 @@ export default function ScrollVideoScrub({
           <div className="absolute inset-0 bg-black/40" />
         </div>
 
+        {/* Blends the section into the flat dark-bg of whatever comes next.
+            The mask on the two backgrounds above fades their own imagery
+            out, but never guarantees a pixel-perfect match to --color-bg —
+            this unmasked layer does, closing the seam at the section
+            boundary regardless of scroll position or overlay strength. */}
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-b from-transparent to-dark-bg" />
+
         <div className="relative w-full max-w-5xl">
           {/* Mobile-only scroll hint, anchored just above the card so it
               fills the empty space regardless of viewport height. Holds,

@@ -7,6 +7,7 @@ import Faq from "../components/Faq.jsx";
 import Testimonials from "../components/Testimonials.jsx";
 import FinalCta from "../components/FinalCta.jsx";
 import ScrollVideoScrub from "../components/ScrollVideoScrub.tsx";
+import SloganDivider from "../components/SloganDivider.jsx";
 
 export default function HomePage() {
   // Landing here with a hash (a fresh load from "/#leistungen", including
@@ -31,6 +32,7 @@ export default function HomePage() {
         beforeLabel="Vorher"
         afterLabel="Nachher"
       />
+      <SloganDivider />
       <Kalkulator />
       <Faq />
       <Testimonials />
