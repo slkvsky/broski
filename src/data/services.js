@@ -10,12 +10,11 @@ export const VEHICLE_SIZES = [
   { id: "ober", label: "Oberklasse", hint: "z. B. BMW 5er, Audi A6, Mercedes E-Klasse" },
   { id: "suv", label: "SUV / Van", hint: "z. B. BMW X5, Mercedes GLE, VW Multivan" },
   { id: "transporter", label: "Transporter", hint: "z. B. VW Transporter, Mercedes Vito, Ford Transit" },
-  { id: "wohnmobil", label: "Wohnmobil / Wohnwagen", hint: "Individuelles Angebot" },
 ];
 
 // Price tables keyed by vehicle-size id. `null` = no fixed price ("auf Anfrage").
-const AUSSEN_PRICES = { klein: 69, kompakt: 79, mittel: 89, ober: 99, suv: 109, transporter: 125, wohnmobil: null };
-const INNEN_PRICES = { klein: 159, kompakt: 179, mittel: 199, ober: 210, suv: 239, transporter: 279, wohnmobil: null };
+const AUSSEN_PRICES = { klein: 69, kompakt: 79, mittel: 89, ober: 99, suv: 109, transporter: 125 };
+const INNEN_PRICES = { klein: 159, kompakt: 179, mittel: 199, ober: 210, suv: 239, transporter: 279 };
 const KOMPLETT_LACKSCHUTZ_PRICES = {
   klein: 499,
   kompakt: 549,
@@ -23,11 +22,10 @@ const KOMPLETT_LACKSCHUTZ_PRICES = {
   ober: 649,
   suv: 699,
   transporter: null,
-  wohnmobil: null,
 };
-const TIERHAAR_PRICES = { klein: 40, kompakt: 50, mittel: 60, ober: 70, suv: 80, transporter: 90, wohnmobil: null };
-const ONE_STEP_POLITUR_PRICES = { klein: 159, kompakt: 169, mittel: 179, ober: 199, suv: 219, transporter: 249, wohnmobil: null };
-const MOTORRAUM_PRICES = { klein: 50, kompakt: 50, mittel: 55, ober: 55, suv: 60, transporter: 60, wohnmobil: null };
+const TIERHAAR_PRICES = { klein: 40, kompakt: 50, mittel: 60, ober: 70, suv: 80, transporter: 90 };
+const ONE_STEP_POLITUR_PRICES = { klein: 159, kompakt: 169, mittel: 179, ober: 199, suv: 219, transporter: 249 };
+const MOTORRAUM_PRICES = { klein: 50, kompakt: 50, mittel: 55, ober: 55, suv: 60, transporter: 60 };
 
 function tablePrice(table) {
   return (sizeId) => table[sizeId] ?? null;

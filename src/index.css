@@ -175,6 +175,29 @@
   .no-scrollbar::-webkit-scrollbar {
     display: none;
   }
+
+  @keyframes desc-reveal {
+    from {
+      opacity: 0;
+      transform: translateY(-4px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-desc-reveal {
+    animation: desc-reveal 220ms var(--ease-smooth) both;
+  }
+
+  /* Static noise tile (feTurbulence baked into a data-URI, not re-rendered
+     per frame) — cheap enough to sit behind content at low opacity without
+     an animated filter. */
+  .bg-grain {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-repeat: repeat;
+  }
 }
 
 @layer components {

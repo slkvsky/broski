@@ -43,7 +43,7 @@ export default function ServiceAreaTicker() {
         style={{ background: "linear-gradient(90deg, transparent, rgba(245,196,0,0.14), transparent)" }}
       />
 
-      <span className="relative z-10 shrink-0 font-mono text-[10px] font-medium uppercase tracking-wider text-accent sm:text-xs sm:tracking-widest">
+      <span className="relative z-10 hidden shrink-0 font-mono text-[10px] font-medium uppercase tracking-wider text-accent sm:text-xs sm:tracking-widest md:inline">
         Mobiler Service in der Region
       </span>
       <div

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import Button from "./Button.jsx";
 import logoMark from "../assets/logo-mark.webp";
 
@@ -29,6 +29,18 @@ function MenuIcon({ open }) {
 
 export default function Header() {
   const [open, setOpen] = useState(false);
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const handleLogoClick = (e) => {
+    e.preventDefault();
+    if (location.pathname === "/") {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } else {
+      navigate("/");
+    }
+  };
+
   // Lazy-initialized: pages without a Hero (e.g. /gewerbekunden) have
   // nothing dark behind the header to stay transparent over, so it should
   // read as solid from the first render instead of assuming a Hero exists.
@@ -74,7 +86,7 @@ export default function Header() {
       }`}
     >
       <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 md:px-10">
-        <Link to="/" className="shrink-0">
+        <Link to="/" onClick={handleLogoClick} className="shrink-0">
           <img src={logoMark} alt="Broski Detailing" className="h-8 w-auto md:h-9" />
         </Link>
 

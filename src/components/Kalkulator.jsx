@@ -1,8 +1,10 @@
-import { useState } from "react";
-import { ArrowLeft, ChevronDown, ImagePlus, X } from "lucide-react";
+import { useRef, useState } from "react";
+import { ArrowLeft, Check, ChevronDown, ImagePlus, X } from "lucide-react";
 import { useInView } from "../hooks/useInView.js";
+import { usePrefersReducedMotion } from "../hooks/usePrefersReducedMotion.js";
 import Button from "./Button.jsx";
 import AutocompleteInput from "./AutocompleteInput.jsx";
+import AnimatedNumber from "./AnimatedNumber.jsx";
 import { CONTACT_EMAIL, EXTRAS, LEISTUNGEN, VEHICLE_SIZES } from "../data/services.js";
 import { CAR_MAKES_MODELS } from "../data/carMakesModels.js";
 
@@ -26,7 +28,21 @@ function priceLabelFor(item, sizeId) {
   return `${prefix}${price} €${suffix}`;
 }
 
-function OptionCard({ selected, title, hint, description, priceLabel, highlight = false, onClick }) {
+function SectionGrain() {
+  return (
+    <div className="pointer-events-none absolute inset-0 z-0" aria-hidden="true">
+      <div className="absolute inset-0 bg-grain opacity-[0.035]" />
+      <div
+        className="absolute inset-0"
+        style={{
+          background: "radial-gradient(ellipse 60% 40% at 50% 45%, rgba(255,255,255,0.05), transparent 70%)",
+        }}
+      />
+    </div>
+  );
+}
+
+function OptionCard({ selected, dimmed = false, title, hint, description, priceLabel, highlight = false, onClick }) {
   const [expanded, setExpanded] = useState(false);
 
   function toggleExpanded(event) {
@@ -36,25 +52,36 @@ function OptionCard({ selected, title, hint, description, priceLabel, highlight 
 
   return (
     <div
-      className={`relative flex flex-col rounded-2xl border transition-colors duration-150 ease-out ${
+      className={`relative flex flex-col rounded-2xl border transition-[transform,opacity,border-color,background-color] duration-200 ease-out hover:-translate-y-0.5 ${
         selected
-          ? "border-ink bg-ink text-bg"
+          ? "border-accent bg-accent/5 text-ink"
           : highlight
-            ? "border-accent bg-accent/10 text-ink hover:border-ink"
+            ? "border-accent/40 bg-bg text-ink hover:border-accent/70"
             : "border-line bg-bg text-ink hover:border-ink/40"
-      }`}
+      } ${!selected && dimmed ? "opacity-60 hover:opacity-100" : "opacity-100"}`}
     >
+      {/* Glow layer: box-shadow itself is static, only its opacity animates
+          (cheap) — the "glow" reads the same as animating box-shadow directly
+          but skips the expensive paint work that would cost. */}
+      <span
+        aria-hidden="true"
+        className={`pointer-events-none absolute -inset-1 rounded-2xl transition-opacity duration-200 ease-out ${
+          selected ? "opacity-100" : "opacity-0"
+        }`}
+        style={{ boxShadow: "0 10px 30px -10px rgba(245, 196, 0, 0.45)" }}
+      />
+
       {highlight && !selected && (
         <span className="absolute -top-2.5 left-4 inline-flex items-center gap-1 rounded-full bg-accent px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-accent-ink">
           Empfehlung
         </span>
       )}
-      <button type="button" onClick={onClick} aria-pressed={selected} className="flex w-full flex-col gap-1 px-5 py-4 text-left">
+      <button type="button" onClick={onClick} aria-pressed={selected} className="relative flex w-full flex-col gap-1 px-5 py-4 text-left">
         <span className="flex items-center justify-between gap-3">
           <span className="font-display text-base font-medium">{title}</span>
           <span className="flex shrink-0 items-center gap-2">
             {priceLabel && (
-              <span className={`text-sm ${selected ? "text-bg/80" : "text-ink-soft"}`}>{priceLabel}</span>
+              <span className={`text-sm ${selected ? "text-accent" : "text-ink-soft"}`}>{priceLabel}</span>
             )}
             {description && (
               <span
@@ -69,8 +96,8 @@ function OptionCard({ selected, title, hint, description, priceLabel, highlight 
                 }}
                 aria-expanded={expanded}
                 aria-label={expanded ? "Details ausblenden" : "Details anzeigen"}
-                className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border transition-transform duration-150 ${
-                  selected ? "border-bg/40 text-bg/80" : "border-line text-ink-soft"
+                className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border text-ink-soft transition-transform duration-150 ease-out ${
+                  selected ? "border-accent/50" : "border-line"
                 } ${expanded ? "rotate-180" : ""}`}
               >
                 <ChevronDown size={12} strokeWidth={2.5} aria-hidden="true" />
@@ -78,10 +105,10 @@ function OptionCard({ selected, title, hint, description, priceLabel, highlight 
             )}
           </span>
         </span>
-        {hint && <span className={`text-sm ${selected ? "text-bg/70" : "text-ink-soft"}`}>{hint}</span>}
+        {hint && <span className="text-sm text-ink-soft">{hint}</span>}
       </button>
       {description && expanded && (
-        <p className={`px-5 pb-4 text-sm ${selected ? "text-bg/70" : "text-ink-soft"}`}>{description}</p>
+        <p className="animate-desc-reveal px-5 pb-4 text-sm text-ink-soft">{description}</p>
       )}
     </div>
   );
@@ -106,7 +133,7 @@ function LederExtraCard({ extra, selectedVariantId, onSelectVariant }) {
           >
             {expanded ? "Weniger anzeigen" : "Details anzeigen"}
           </button>
-          {expanded && <p className="mt-2 text-sm text-ink-soft">{extra.description}</p>}
+          {expanded && <p className="animate-desc-reveal mt-2 text-sm text-ink-soft">{extra.description}</p>}
         </div>
       </div>
 
@@ -119,12 +146,12 @@ function LederExtraCard({ extra, selectedVariantId, onSelectVariant }) {
               type="button"
               onClick={() => onSelectVariant(active ? null : variant.id)}
               aria-pressed={active}
-              className={`rounded-xl border px-4 py-3 text-left text-sm transition-colors duration-150 ${
-                active ? "border-ink bg-ink text-bg" : "border-line bg-bg text-ink hover:border-ink/40"
+              className={`relative rounded-xl border px-4 py-3 text-left text-sm transition-[transform,border-color,background-color] duration-200 ease-out hover:-translate-y-0.5 ${
+                active ? "border-accent bg-accent/10 text-ink" : "border-line bg-bg text-ink hover:border-ink/40"
               }`}
             >
               <span className="block font-medium">{variant.label}</span>
-              <span className={active ? "text-bg/70" : "text-ink-soft"}>ab {variant.getPrice()} €</span>
+              <span className={active ? "text-accent" : "text-ink-soft"}>ab {variant.getPrice()} €</span>
             </button>
           );
         })}
@@ -133,44 +160,104 @@ function LederExtraCard({ extra, selectedVariantId, onSelectVariant }) {
   );
 }
 
-function StepIndicator({ step }) {
+function StepIndicator({ step, onStepClick }) {
   return (
-    <ol className="mb-10 flex flex-wrap gap-x-6 gap-y-2">
-      {STEPS.map((label, i) => (
-        <li
-          key={label}
-          className={`flex items-center gap-2 text-xs font-medium uppercase tracking-widest ${
-            i === step ? "text-ink" : "text-ink-soft"
-          }`}
-        >
-          <span
-            className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border text-[10px] ${
-              i < step
-                ? "border-ink bg-ink text-bg"
-                : i === step
-                  ? "border-ink text-ink"
-                  : "border-line text-ink-soft"
-            }`}
-          >
-            {i + 1}
-          </span>
-          {label}
-        </li>
-      ))}
+    <ol className="mb-10 flex items-center">
+      {STEPS.map((label, i) => {
+        const state = i < step ? "done" : i === step ? "current" : "upcoming";
+        // Only completed steps can be jumped back to — the step ahead may
+        // depend on data the user hasn't entered yet, so forward jumps stay
+        // gated behind "Weiter" (which already enforces that).
+        const clickable = state === "done";
+        const Tag = clickable ? "button" : "div";
+        return (
+          <li key={label} className={`flex items-center ${i < STEPS.length - 1 ? "flex-1" : ""}`}>
+            <Tag
+              type={clickable ? "button" : undefined}
+              onClick={clickable ? () => onStepClick(i) : undefined}
+              aria-current={state === "current" ? "step" : undefined}
+              className={`flex shrink-0 items-center gap-2 rounded-full ${
+                clickable ? "cursor-pointer transition-opacity duration-150 ease-out hover:opacity-70" : ""
+              }`}
+            >
+              <span
+                className={`flex shrink-0 items-center justify-center rounded-full border text-[10px] transition-[transform,color,border-color,background-color] duration-200 ease-out ${
+                  state === "done"
+                    ? "h-5 w-5 border-accent bg-accent text-accent-ink"
+                    : state === "current"
+                      ? "h-6 w-6 border-ink text-ink font-semibold"
+                      : "h-5 w-5 border-line text-ink-soft opacity-40"
+                }`}
+              >
+                {state === "done" ? <Check size={12} strokeWidth={3} aria-hidden="true" /> : i + 1}
+              </span>
+              <span
+                className={`hidden text-xs font-medium uppercase tracking-widest sm:inline ${
+                  state === "current" ? "text-ink" : state === "done" ? "text-accent" : "text-ink-soft opacity-40"
+                }`}
+              >
+                {label}
+              </span>
+            </Tag>
+            {i < STEPS.length - 1 && (
+              <span className="relative mx-3 h-px flex-1 overflow-hidden rounded-full bg-line" aria-hidden="true">
+                <span
+                  className="absolute inset-0 origin-left bg-accent transition-transform duration-300 ease-out"
+                  style={{ transform: `scaleX(${i < step ? 1 : 0})` }}
+                />
+              </span>
+            )}
+          </li>
+        );
+      })}
     </ol>
   );
 }
 
-function PriceBar({ total, unknown }) {
+function PriceNode({ total, unknown, reducedMotion }) {
+  if (unknown) return "auf Anfrage";
   return (
-    <div className="mt-8 flex items-center justify-between gap-4 rounded-2xl border border-line bg-bg-alt px-5 py-4">
+    <>
+      ab <AnimatedNumber value={total} reducedMotion={reducedMotion} /> €
+    </>
+  );
+}
+
+// Desktop-only: sticks to the top of the viewport as the section scrolls by.
+// Lives inside the normal content flow (position: sticky isn't affected by
+// an ancestor's transform the way position: fixed is).
+function DesktopPriceBar({ visible, total, unknown, reducedMotion }) {
+  if (!visible) return null;
+  return (
+    <div className="sticky top-20 z-20 mb-6 hidden items-center justify-between rounded-2xl border border-accent/30 bg-bg-alt px-6 py-4 sm:flex">
       <div>
         <p className="text-xs uppercase tracking-widest text-ink-soft">Richtpreis</p>
-        <p className="font-display text-xl font-semibold text-ink">{unknown ? "auf Anfrage" : `ab ${total} €`}</p>
+        <p className="font-display text-3xl font-semibold text-ink">
+          <PriceNode total={total} unknown={unknown} reducedMotion={reducedMotion} />
+        </p>
       </div>
-      <p className="max-w-[11rem] text-right text-xs text-ink-soft">
+      <p className="max-w-[14rem] text-right text-xs text-ink-soft">
         Unverbindlich — finaler Preis nach kurzer Sichtprüfung vor Ort.
       </p>
+    </div>
+  );
+}
+
+// Mobile-only: pinned to the bottom of the viewport. Rendered as a sibling
+// of (not nested inside) the reveal-animated content wrapper — that wrapper
+// carries a `transform` (even `translate-y-0` counts) which would otherwise
+// turn this `position: fixed` element into one contained by that wrapper's
+// box instead of the real viewport.
+function MobilePriceBar({ visible, total, unknown, reducedMotion }) {
+  if (!visible) return null;
+  return (
+    <div className="fixed inset-x-0 bottom-0 z-40 border-t border-accent/30 bg-bg-alt px-5 py-3 sm:hidden">
+      <div className="flex items-center justify-between">
+        <span className="text-[10px] uppercase tracking-widest text-ink-soft">Richtpreis</span>
+        <p className="font-display text-xl font-semibold text-ink">
+          <PriceNode total={total} unknown={unknown} reducedMotion={reducedMotion} />
+        </p>
+      </div>
     </div>
   );
 }
@@ -425,6 +512,36 @@ function ContactFields({ idPrefix, contact, setContact, files, setFiles }) {
   );
 }
 
+// Wraps the "Weiter" button so it drifts a few px toward the cursor while
+// hovered — a plain `transform: translate(...)` written straight to the DOM
+// on mousemove (no React state per frame), reset on mouseleave.
+function MagneticWrap({ children, disabled = false }) {
+  const ref = useRef(null);
+
+  function handleMove(event) {
+    if (disabled || !ref.current) return;
+    const rect = ref.current.getBoundingClientRect();
+    const dx = (event.clientX - rect.left - rect.width / 2) * 0.25;
+    const dy = (event.clientY - rect.top - rect.height / 2) * 0.25;
+    ref.current.style.transform = `translate(${dx}px, ${dy}px)`;
+  }
+
+  function handleLeave() {
+    if (ref.current) ref.current.style.transform = "translate(0px, 0px)";
+  }
+
+  return (
+    <span
+      ref={ref}
+      onMouseMove={handleMove}
+      onMouseLeave={handleLeave}
+      className="inline-block transition-transform duration-150 ease-out will-change-transform"
+    >
+      {children}
+    </span>
+  );
+}
+
 const EMPTY_CONTACT = {
   name: "",
   phone: "",
@@ -459,6 +576,7 @@ function buildMailtoHref(subject, lines, contact, files) {
 export default function Kalkulator() {
   const [ref, inView] = useInView();
   const [mode, setMode] = useState("calculator");
+  const reducedMotion = usePrefersReducedMotion();
 
   const [step, setStep] = useState(0);
   const [vehicleSizeId, setVehicleSizeId] = useState(null);
@@ -485,6 +603,7 @@ export default function Kalkulator() {
   );
   const selectedSimpleExtras = visibleSimpleExtras.filter((e) => extraIds.includes(e.id));
   const lederVariant = lederExtra?.variants.find((v) => v.id === lederVariantId) ?? null;
+  const anyExtraSelected = extraIds.length > 0 || lederVariantId != null;
 
   const leistungPrice = selectedLeistung && vehicleSizeId ? selectedLeistung.getPrice(vehicleSizeId) : null;
   const extrasPriceUnknown = selectedSimpleExtras.some((e) => e.getPrice(vehicleSizeId) == null);
@@ -493,6 +612,16 @@ export default function Kalkulator() {
     (lederVariant ? lederVariant.getPrice() : 0);
   const totalPrice = (leistungPrice ?? 0) + extrasTotal;
   const priceUnknown = Boolean(leistungId) && (leistungPrice == null || extrasPriceUnknown);
+
+  // The sticky price bar reflects only what's been reached so far in the
+  // flow, not what's already picked further ahead — otherwise jumping back
+  // to Leistung after having chosen Extras shows a total that doesn't match
+  // anything visible on screen. Selections themselves are never cleared, so
+  // moving forward again picks the full total right back up.
+  const displayedExtrasTotal = step >= 2 ? extrasTotal : 0;
+  const displayedTotalPrice = (leistungPrice ?? 0) + displayedExtrasTotal;
+  const displayedPriceUnknown =
+    Boolean(leistungId) && (leistungPrice == null || (step >= 2 && extrasPriceUnknown));
 
   function toggleExtra(id) {
     setExtraIds((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
@@ -555,10 +684,13 @@ export default function Kalkulator() {
     inView ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0"
   }`;
 
+  const stickyBarVisible = step > 0 && !submitted && Boolean(selectedLeistung);
+
   if (mode === "custom") {
     return (
-      <section id="leistungen" className="border-b border-line bg-bg px-6 py-24 md:px-10">
-        <div ref={ref} className={`mx-auto max-w-7xl ${revealClass}`}>
+      <section id="leistungen" className="relative border-b border-line bg-bg px-6 py-24 md:px-10">
+        <SectionGrain />
+        <div ref={ref} className={`relative z-10 mx-auto max-w-7xl ${revealClass}`}>
           <button
             type="button"
             onClick={() => setMode("calculator")}
@@ -610,8 +742,9 @@ export default function Kalkulator() {
   }
 
   return (
-    <section id="leistungen" className="border-b border-line bg-bg px-6 py-24 md:px-10">
-      <div ref={ref} className={`mx-auto max-w-7xl ${revealClass}`}>
+    <section id="leistungen" className="relative border-b border-line bg-bg px-6 py-24 md:px-10">
+      <SectionGrain />
+      <div ref={ref} className={`relative z-10 mx-auto max-w-7xl ${revealClass}`}>
         <SectionHeader
           eyebrow="Kalkulator"
           title="Berechne deinen Richtpreis"
@@ -631,7 +764,14 @@ export default function Kalkulator() {
             </div>
           ) : (
             <div key="calculator" className="animate-step-fade">
-              <StepIndicator step={step} />
+              <StepIndicator step={step} onStepClick={setStep} />
+
+              <DesktopPriceBar
+                visible={stickyBarVisible}
+                total={displayedTotalPrice}
+                unknown={displayedPriceUnknown}
+                reducedMotion={reducedMotion}
+              />
 
               <div key={step} className="animate-step-fade">
                 {step === 0 && (
@@ -640,6 +780,7 @@ export default function Kalkulator() {
                       <OptionCard
                         key={vs.id}
                         selected={vehicleSizeId === vs.id}
+                        dimmed={Boolean(vehicleSizeId)}
                         title={vs.label}
                         hint={vs.hint}
                         onClick={() => setVehicleSizeId(vs.id)}
@@ -654,6 +795,7 @@ export default function Kalkulator() {
                       <OptionCard
                         key={l.id}
                         selected={leistungId === l.id}
+                        dimmed={Boolean(leistungId)}
                         title={l.label}
                         description={l.description}
                         priceLabel={priceLabelFor(l, vehicleSizeId)}
@@ -669,6 +811,7 @@ export default function Kalkulator() {
                       <OptionCard
                         key={extra.id}
                         selected={extraIds.includes(extra.id)}
+                        dimmed={anyExtraSelected}
                         title={extra.label}
                         description={extra.description}
                         priceLabel={priceLabelFor(extra, vehicleSizeId)}
@@ -709,9 +852,7 @@ export default function Kalkulator() {
                 )}
               </div>
 
-              {step > 0 && step < 3 && selectedLeistung && <PriceBar total={totalPrice} unknown={priceUnknown} />}
-
-              <div className="mt-8 flex items-center justify-between">
+              <div className={`mt-8 flex items-center justify-between ${stickyBarVisible ? "mb-20 sm:mb-0" : ""}`}>
                 <button
                   type="button"
                   onClick={goBack}
@@ -726,15 +867,17 @@ export default function Kalkulator() {
                     Anfrage senden
                   </Button>
                 ) : (
-                  <Button
-                    key="next"
-                    type="button"
-                    variant="primary"
-                    onClick={goNext}
-                    className={!canGoNext ? "pointer-events-none opacity-40" : ""}
-                  >
-                    Weiter
-                  </Button>
+                  <MagneticWrap disabled={reducedMotion}>
+                    <Button
+                      key="next"
+                      type="button"
+                      variant="primary"
+                      onClick={goNext}
+                      className={!canGoNext ? "pointer-events-none opacity-40" : ""}
+                    >
+                      Weiter
+                    </Button>
+                  </MagneticWrap>
                 )}
               </div>
             </div>
@@ -743,6 +886,13 @@ export default function Kalkulator() {
 
         <PreisHinweis />
       </div>
+
+      <MobilePriceBar
+        visible={stickyBarVisible}
+        total={displayedTotalPrice}
+        unknown={displayedPriceUnknown}
+        reducedMotion={reducedMotion}
+      />
     </section>
   );
 }
