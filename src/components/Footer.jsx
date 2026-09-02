@@ -1,10 +1,13 @@
 import { Link } from "react-router-dom";
+import { Mail } from "lucide-react";
 import { CONTACT_EMAIL, CONTACT_PHONE, CONTACT_PHONE_HREF, WHATSAPP_HREF } from "../data/services.js";
-import { FacebookIcon, InstagramIcon, TiktokIcon, YoutubeIcon } from "./icons/SocialIcons.jsx";
+import { FacebookIcon, InstagramIcon, TiktokIcon, WhatsappIcon, YoutubeIcon } from "./icons/SocialIcons.jsx";
 
-// Placeholders until the real social profiles are ready — kept in one place
-// so swapping them later is a one-line change per entry.
 const SOCIAL_LINKS = [
+  { label: "WhatsApp", href: WHATSAPP_HREF, icon: WhatsappIcon },
+  { label: "E-Mail", href: `mailto:${CONTACT_EMAIL}`, icon: Mail },
+  // Placeholders until the real social profiles are ready — kept in one
+  // place so swapping them later is a one-line change per entry.
   { label: "Instagram", href: "#", icon: InstagramIcon },
   { label: "TikTok", href: "#", icon: TiktokIcon },
   { label: "Facebook", href: "#", icon: FacebookIcon },
@@ -30,7 +33,6 @@ export default function Footer() {
             </p>
 
             <div className="mt-6 flex flex-col gap-2 text-sm text-ink-soft">
-              <span>Musterstraße 1, 42103 Wuppertal</span>
               <a href={CONTACT_PHONE_HREF} className="w-fit transition-colors duration-150 hover:text-ink">
                 {CONTACT_PHONE}
               </a>
