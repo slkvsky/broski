@@ -1,5 +1,6 @@
-import { useRef, useState } from "react";
-import { ArrowLeft, Check, ChevronDown, ImagePlus, X } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { ArrowLeft, CarFront, CarTaxiFront, Check, ChevronDown, Gem, ImagePlus, X } from "lucide-react";
+import { IconCar, IconCarSuv, IconTruckDelivery } from "@tabler/icons-react";
 import { useInView } from "../hooks/useInView.js";
 import { usePrefersReducedMotion } from "../hooks/usePrefersReducedMotion.js";
 import Button from "./Button.jsx";
@@ -9,6 +10,23 @@ import { CONTACT_EMAIL, EXTRAS, LEISTUNGEN, VEHICLE_SIZES } from "../data/servic
 import { CAR_MAKES_MODELS } from "../data/carMakesModels.js";
 
 const STEPS = ["Fahrzeuggröße", "Leistung", "Extras", "Kontakt"];
+
+// Keyed by VEHICLE_SIZES id rather than stored in data/services.js — that
+// file stays plain data, icons are a display concern of this component.
+// Mixes lucide-react with @tabler/icons-react for the two sizes (SUV, the
+// cargo-van "Transporter") where lucide has nothing more specific than a
+// generic van/truck glyph — Tabler's car-suv and truck-delivery read as
+// that body shape at a glance instead of "some car" / "some truck". Both
+// libraries accept the same `size`/`strokeWidth` props, so OptionCard
+// doesn't need to know which one it's rendering.
+const VEHICLE_SIZE_ICONS = {
+  klein: IconCar,
+  kompakt: CarFront,
+  mittel: CarTaxiFront,
+  ober: Gem,
+  suv: IconCarSuv,
+  transporter: IconTruckDelivery,
+};
 
 const CAR_MAKE_NAMES = CAR_MAKES_MODELS.map((m) => m.make);
 
@@ -42,7 +60,7 @@ function SectionGrain() {
   );
 }
 
-function OptionCard({ selected, dimmed = false, title, hint, description, priceLabel, highlight = false, onClick }) {
+function OptionCard({ selected, dimmed = false, title, hint, description, priceLabel, highlight = false, icon: Icon, onClick }) {
   const [expanded, setExpanded] = useState(false);
 
   function toggleExpanded(event) {
@@ -78,7 +96,18 @@ function OptionCard({ selected, dimmed = false, title, hint, description, priceL
       )}
       <button type="button" onClick={onClick} aria-pressed={selected} className="relative flex w-full flex-col gap-1 px-5 py-4 text-left">
         <span className="flex items-center justify-between gap-3">
-          <span className="font-display text-base font-medium">{title}</span>
+          <span className="flex items-center gap-4">
+            {Icon && (
+              <span
+                className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-full border transition-colors duration-200 ease-out ${
+                  selected ? "border-accent/50 text-accent" : "border-line text-ink-soft"
+                }`}
+              >
+                <Icon size={28} strokeWidth={1.5} aria-hidden="true" />
+              </span>
+            )}
+            <span className="font-display text-base font-medium">{title}</span>
+          </span>
           <span className="flex shrink-0 items-center gap-2">
             {priceLabel && (
               <span className={`text-sm ${selected ? "text-accent" : "text-ink-soft"}`}>{priceLabel}</span>
@@ -346,6 +375,11 @@ function PreisHinweis() {
 }
 
 function ContactFields({ idPrefix, contact, setContact, files, setFiles }) {
+  // Object URLs for the thumbnail previews below — recreated whenever the
+  // file list changes, revoked on cleanup so they don't leak memory.
+  const previews = useMemo(() => files.map((file) => URL.createObjectURL(file)), [files]);
+  useEffect(() => () => previews.forEach((url) => URL.revokeObjectURL(url)), [previews]);
+
   function update(field) {
     return (e) => setContact((c) => ({ ...c, [field]: e.target.value }));
   }
@@ -492,14 +526,21 @@ function ContactFields({ idPrefix, contact, setContact, files, setFiles }) {
             {files.map((file, i) => (
               <li
                 key={`${file.name}-${i}`}
-                className="flex items-center gap-2 rounded-full border border-line bg-bg-alt px-3 py-1.5 text-xs text-ink-soft"
+                className="flex items-center gap-2 rounded-full border border-line bg-bg-alt py-1.5 pl-1.5 pr-3 text-xs text-ink-soft"
               >
-                {file.name}
+                {previews[i] && (
+                  <img
+                    src={previews[i]}
+                    alt=""
+                    className="h-7 w-7 shrink-0 rounded-full object-cover"
+                  />
+                )}
+                <span className="max-w-[9rem] truncate">{file.name}</span>
                 <button
                   type="button"
                   onClick={() => removeFile(i)}
                   aria-label={`${file.name} entfernen`}
-                  className="text-ink-soft transition-colors duration-150 hover:text-ink"
+                  className="shrink-0 text-ink-soft transition-colors duration-150 hover:text-ink"
                 >
                   <X size={12} strokeWidth={2.5} aria-hidden="true" />
                 </button>
@@ -783,6 +824,7 @@ export default function Kalkulator() {
                         dimmed={Boolean(vehicleSizeId)}
                         title={vs.label}
                         hint={vs.hint}
+                        icon={VEHICLE_SIZE_ICONS[vs.id]}
                         onClick={() => setVehicleSizeId(vs.id)}
                       />
                     ))}
