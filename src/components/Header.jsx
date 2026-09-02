@@ -3,12 +3,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import Button from "./Button.jsx";
 import logoMark from "../assets/logo-mark.webp";
 
-const NAV_LINKS = [
-  { label: "Leistungen", href: "/#leistungen" },
-  { label: "Galerie", href: "/#galerie" },
-  { label: "Über uns", href: "/#ueber-uns" },
-  { label: "Kontakt", href: "/#kontakt" },
-];
+const NAV_LINKS = [{ label: "Leistungen", href: "/#leistungen" }];
 
 function MenuIcon({ open }) {
   return (
@@ -112,7 +107,13 @@ export default function Header() {
           >
             FAQ
           </Link>
-          <Button as="a" href="/#kontakt" variant="primary" arrow={false} className="px-5 py-2.5 text-xs">
+          <Link
+            to="/kontakt"
+            className="text-xs font-medium uppercase tracking-[0.15em] text-dark-ink-soft transition-colors duration-150 ease-out hover:text-dark-ink"
+          >
+            Kontakt
+          </Link>
+          <Button as={Link} to="/kontakt" variant="primary" arrow={false} className="px-5 py-2.5 text-xs">
             Termin anfragen
           </Button>
         </nav>
@@ -160,15 +161,16 @@ export default function Header() {
           >
             FAQ
           </Link>
+          <Link
+            to="/kontakt"
+            onClick={() => setOpen(false)}
+            className="border-b border-dark-ink/10 py-4 font-display text-2xl text-dark-ink"
+          >
+            Kontakt
+          </Link>
         </nav>
 
-        <Button
-          as="a"
-          href="/#kontakt"
-          variant="primary"
-          onClick={() => setOpen(false)}
-          className="w-full justify-center"
-        >
+        <Button as={Link} to="/kontakt" variant="primary" onClick={() => setOpen(false)} className="w-full justify-center">
           Termin anfragen
         </Button>
       </div>

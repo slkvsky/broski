@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { Link } from "react-router-dom";
 import { Mail } from "lucide-react";
 import Button from "./Button.jsx";
 import { InstagramIcon, WhatsappIcon } from "./icons/SocialIcons.jsx";
@@ -138,7 +139,7 @@ export default function Hero() {
             className={`mt-8 flex items-center gap-5 ${carLoaded ? "animate-fade-up" : "opacity-0"}`}
             style={carLoaded ? { animationDelay: "800ms" } : undefined}
           >
-            <Button as="a" href="#kontakt" variant="primary">
+            <Button as={Link} to="/kontakt" variant="primary">
               Termin anfragen
             </Button>
 
