@@ -41,10 +41,10 @@ export default function ScrollVideoScrub({
   const [progress, setProgress] = useState(0);
   const reducedMotion = usePrefersReducedMotion();
 
-  // Mobile-only ambient background: paints the video's current frame into a
-  // canvas that's rendered heavily blurred and scaled up behind the card
-  // (see the mobile background layer in the markup below). Reuses the frame
-  // already decoded for the visible <video> — no second network fetch.
+  // Ambient background: paints the video's current frame into a canvas
+  // that's rendered heavily blurred and scaled up behind the card (see the
+  // background layer in the markup below). Reuses the frame already
+  // decoded for the visible <video> — no second network fetch.
   function drawAmbientFrame(video: HTMLVideoElement) {
     const canvas = ambientCanvasRef.current;
     if (!canvas || !video.videoWidth || !video.videoHeight) return;
@@ -158,9 +158,9 @@ export default function ScrollVideoScrub({
   const isAfter = progress > 0.5;
   // Holds fully visible through the first 4% of scroll (so a light nudge
   // doesn't instantly wipe it away), then fades out gradually through 18% —
-  // a nudge for the mobile-only "start scrolling" hint, not shown once
-  // reduced motion is on (there's no meaningful "before you scroll" moment
-  // then, since the card isn't scroll-scrubbed in that mode).
+  // a nudge for the "start scrolling" hint, not shown once reduced motion
+  // is on (there's no meaningful "before you scroll" moment then, since
+  // the card isn't scroll-scrubbed in that mode).
   const HINT_HOLD = 0.04;
   const HINT_FADE_END = 0.18;
   const hintOpacity =
@@ -169,30 +169,12 @@ export default function ScrollVideoScrub({
   return (
     <section ref={sectionRef} className="relative h-[300vh] bg-dark-bg">
       <div className="sticky top-0 flex h-dvh w-full items-center justify-center overflow-hidden px-6 py-16 md:px-10">
-        {/* Desktop background: the static dark-auto photo, unchanged. */}
+        {/* Background: the video's own current frame, scaled up and heavily
+            blurred, so the space around the card reads as an intentional
+            ambient glow instead of dead black space. Kept dark/desaturated
+            so the card stays the clear focal point. */}
         <div
-          className="absolute inset-0 hidden md:block"
-          style={{
-            maskImage:
-              "linear-gradient(to bottom, transparent 0%, black 18%, black 82%, transparent 100%)",
-            WebkitMaskImage:
-              "linear-gradient(to bottom, transparent 0%, black 18%, black 82%, transparent 100%)",
-          }}
-        >
-          <div
-            className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-            style={{ backgroundImage: "url(/premium-auto-dark-background-16x9.png)" }}
-          />
-          <div className="absolute inset-0 bg-black/70" />
-        </div>
-
-        {/* Mobile background: the video's own current frame, scaled up and
-            heavily blurred, so the space around the (narrower, portrait-
-            cropped) card reads as an intentional ambient glow instead of
-            dead black space. Kept dark/desaturated so the card stays the
-            clear focal point. */}
-        <div
-          className="absolute inset-0 block md:hidden"
+          className="absolute inset-0"
           style={{
             maskImage:
               "linear-gradient(to bottom, transparent 0%, black 18%, black 82%, transparent 100%)",
@@ -209,21 +191,33 @@ export default function ScrollVideoScrub({
         </div>
 
         {/* Blends the section into the flat dark-bg of whatever comes next.
-            The mask on the two backgrounds above fades their own imagery
-            out, but never guarantees a pixel-perfect match to --color-bg —
-            this unmasked layer does, closing the seam at the section
-            boundary regardless of scroll position or overlay strength. */}
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-b from-transparent to-dark-bg" />
+            The mask on the background above fades its own imagery out, but
+            never guarantees a pixel-perfect match to --color-bg — this
+            unmasked layer does, closing the seam at the section boundary
+            regardless of scroll position or overlay strength. Reaches a
+            guaranteed flat plateau (not just an asymptotic gradient end)
+            well before the true edge — Tailwind's from/to gradient
+            interpolates in oklab and never truly settles at the target
+            color, which left a faint residual band here. */}
+        <div
+          className="pointer-events-none absolute inset-x-0 bottom-0 h-1/2"
+          style={{
+            background: "linear-gradient(to bottom, transparent 0%, var(--color-dark-bg) 65%, var(--color-dark-bg) 100%)",
+          }}
+        />
+        {/* Cheap insurance: guarantees the literal last row is flat opaque
+            color regardless of any gradient-rasterization edge case. */}
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-dark-bg" />
 
         <div className="relative w-full max-w-5xl">
-          {/* Mobile-only scroll hint, anchored just above the card so it
-              fills the empty space regardless of viewport height. Holds,
-              then fades out gradually as the user scrolls into the section. */}
+          {/* Scroll hint, anchored just above the card so it fills the empty
+              space regardless of viewport height. Holds, then fades out
+              gradually as the user scrolls into the section. */}
           {!reducedMotion && (
             <div
               aria-hidden="true"
               style={{ opacity: hintOpacity }}
-              className="absolute inset-x-0 bottom-full mb-6 flex flex-col items-center gap-2 text-center transition-opacity duration-500 ease-out md:hidden"
+              className="absolute inset-x-0 bottom-full mb-6 flex flex-col items-center gap-2 text-center transition-opacity duration-500 ease-out"
             >
               <p className="text-xs font-medium uppercase tracking-[0.3em] text-dark-ink-soft">
                 Scroll für die Verwandlung
