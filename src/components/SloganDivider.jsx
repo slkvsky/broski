@@ -1,58 +1,22 @@
-import { useEffect, useRef } from "react";
-import { useInView } from "../hooks/useInView.js";
-import { usePrefersReducedMotion } from "../hooks/usePrefersReducedMotion.js";
-
+// Small breathing-room section between the Vorher/Nachher scroll-video and
+// Kalkulator — no content of its own, just blends the two dark sections
+// apart with a bit of space instead of a hard cut.
 export default function SloganDivider() {
-  const [sectionRef, inView] = useInView();
-  const textRef = useRef(null);
-  const rafRef = useRef(null);
-  const tickingRef = useRef(false);
-  const reducedMotion = usePrefersReducedMotion();
-
-  useEffect(() => {
-    if (reducedMotion) return;
-
-    const section = sectionRef.current;
-    const text = textRef.current;
-    if (!section || !text) return;
-
-    const update = () => {
-      tickingRef.current = false;
-      const rect = section.getBoundingClientRect();
-      const distanceFromCenter = rect.top + rect.height / 2 - window.innerHeight / 2;
-      const offset = Math.max(-50, Math.min(50, -distanceFromCenter * 0.15));
-      text.style.transform = `translateY(${offset}px)`;
-    };
-
-    const handleScroll = () => {
-      if (tickingRef.current) return;
-      tickingRef.current = true;
-      rafRef.current = requestAnimationFrame(update);
-    };
-
-    update();
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    window.addEventListener("resize", handleScroll, { passive: true });
-
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-      window.removeEventListener("resize", handleScroll);
-      if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
-    };
-  }, [reducedMotion]);
-
   return (
-    <section ref={sectionRef} className="relative overflow-hidden bg-accent py-14 md:py-20">
+    <section className="relative overflow-hidden bg-bg py-10 md:py-14">
+      {/* Faded in from the top instead of switched on at full strength at
+          y=0 — a flat, textureless tail (ScrollVideoScrub's own blend-to-
+          dark-bg layer) meeting instant grain read as a seam even though
+          the underlying color already matches exactly. Taper matches the
+          18% stop ScrollVideoScrub's own ambient layer already uses. */}
       <div
-        className={`transition-opacity duration-700 ease-out ${inView ? "opacity-100" : "opacity-0"}`}
-      >
-        <p
-          ref={textRef}
-          className="mx-auto max-w-4xl px-6 text-center font-display text-3xl font-bold uppercase leading-tight tracking-tight text-accent-ink sm:text-5xl md:text-6xl"
-        >
-          Dreck war gestern.
-        </p>
-      </div>
+        className="pointer-events-none absolute inset-0 bg-grain opacity-[0.04]"
+        aria-hidden="true"
+        style={{
+          maskImage: "linear-gradient(to bottom, transparent 0%, black 18%, black 100%)",
+          WebkitMaskImage: "linear-gradient(to bottom, transparent 0%, black 18%, black 100%)",
+        }}
+      />
     </section>
   );
 }
