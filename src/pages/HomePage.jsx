@@ -5,6 +5,7 @@ import Kalkulator from "../components/Kalkulator.jsx";
 import WarumBroski from "../components/WarumBroski.jsx";
 import Faq from "../components/Faq.jsx";
 import Testimonials from "../components/Testimonials.jsx";
+import GewerbekundenCta from "../components/GewerbekundenCta.jsx";
 import FinalCta from "../components/FinalCta.jsx";
 import ScrollVideoScrub from "../components/ScrollVideoScrub.tsx";
 import SloganDivider from "../components/SloganDivider.jsx";
@@ -36,6 +37,7 @@ export default function HomePage() {
       <Kalkulator />
       <Faq />
       <Testimonials />
+      <GewerbekundenCta />
       <FinalCta />
     </>
   );
