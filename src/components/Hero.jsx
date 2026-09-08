@@ -6,11 +6,9 @@ import { InstagramIcon, WhatsappIcon } from "./icons/SocialIcons.jsx";
 import { CONTACT_EMAIL, WHATSAPP_HREF } from "../data/services.js";
 import carImage from "../assets/car.png";
 
-// Instagram placeholder until the real profile is ready, same pattern as
-// the footer's SOCIAL_LINKS.
 const HERO_SOCIAL_LINKS = [
   { label: "WhatsApp", href: WHATSAPP_HREF, icon: WhatsappIcon },
-  { label: "Instagram", href: "#", icon: InstagramIcon },
+  { label: "Instagram", href: "https://www.instagram.com/broski.detailing", icon: InstagramIcon },
   { label: "E-Mail", href: `mailto:${CONTACT_EMAIL}`, icon: Mail },
 ];
 
