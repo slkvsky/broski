@@ -94,7 +94,18 @@ function OptionCard({ selected, dimmed = false, title, hint, description, priceL
           Empfehlung
         </span>
       )}
-      <button type="button" onClick={onClick} aria-pressed={selected} className="relative flex w-full flex-col gap-1 px-5 py-4 text-left">
+      <button
+        type="button"
+        onClick={(event) => {
+          onClick();
+          // iOS Safari scroll-nudges a newly focused button into view; with
+          // the site's global smooth-scroll this reads as the page jumping
+          // — blurring right after the tap keeps the page where it was.
+          event.currentTarget.blur();
+        }}
+        aria-pressed={selected}
+        className="relative flex w-full flex-col gap-1 px-5 py-4 text-left"
+      >
         <span className="flex items-center justify-between gap-3">
           <span className="flex items-center gap-4">
             {Icon && (

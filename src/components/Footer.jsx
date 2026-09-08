@@ -6,12 +6,10 @@ import { FacebookIcon, InstagramIcon, TiktokIcon, WhatsappIcon, YoutubeIcon } fr
 const SOCIAL_LINKS = [
   { label: "WhatsApp", href: WHATSAPP_HREF, icon: WhatsappIcon },
   { label: "E-Mail", href: `mailto:${CONTACT_EMAIL}`, icon: Mail },
-  // Placeholders until the real social profiles are ready — kept in one
-  // place so swapping them later is a one-line change per entry.
-  { label: "Instagram", href: "#", icon: InstagramIcon },
-  { label: "TikTok", href: "#", icon: TiktokIcon },
-  { label: "Facebook", href: "#", icon: FacebookIcon },
-  { label: "YouTube", href: "#", icon: YoutubeIcon },
+  { label: "Instagram", href: "https://www.instagram.com/broski.detailing", icon: InstagramIcon },
+  { label: "TikTok", href: "https://www.tiktok.com/@broski.detailing", icon: TiktokIcon },
+  { label: "Facebook", href: "https://www.facebook.com/profile.php?id=61586842966936", icon: FacebookIcon },
+  { label: "YouTube", href: "https://youtube.com/@broski.detailing", icon: YoutubeIcon },
 ];
 
 const LEGAL_LINKS = [

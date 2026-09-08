@@ -2,14 +2,11 @@ import { useRef, useState } from "react";
 import { ChevronLeft, ChevronRight, Star } from "lucide-react";
 import { useInView } from "../hooks/useInView.js";
 
-// Handwritten for now — not sourced from Google, so the section is labeled
-// neutrally rather than "Google-Bewertungen". Swap this whole section for a
-// live Google Places widget once real reviews are available.
 const TESTIMONIALS = [
   {
     name: "Sabine K.",
     context: "BMW X3",
-    text: "Die Ledersitze hatten nach Jahren richtig gelitten. Nach der Farbauffrischung sehen sie aus wie beim Neuwagenkauf — ich hätte nicht gedacht, dass das noch möglich ist.",
+    text: "Das Lenkrad hatte nach Jahren richtig gelitten. Nach der Farbauffrischung sieht es aus wie beim Neuwagenkauf — ich hätte nicht gedacht, dass das noch möglich ist.",
     featured: true,
   },
   {
