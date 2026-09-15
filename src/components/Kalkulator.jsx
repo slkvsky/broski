@@ -3,6 +3,7 @@ import { ArrowLeft, CarFront, CarTaxiFront, Check, ChevronDown, Gem, ImagePlus, 
 import { IconCar, IconCarSuv, IconTruckDelivery } from "@tabler/icons-react";
 import { useInView } from "../hooks/useInView.js";
 import { usePrefersReducedMotion } from "../hooks/usePrefersReducedMotion.js";
+import { submitToWeb3Forms } from "../lib/web3forms.js";
 import Button from "./Button.jsx";
 import AutocompleteInput from "./AutocompleteInput.jsx";
 import AnimatedNumber from "./AnimatedNumber.jsx";
@@ -631,6 +632,8 @@ export default function Kalkulator() {
   const reducedMotion = usePrefersReducedMotion();
 
   const [step, setStep] = useState(0);
+  const stepAreaRef = useRef(null);
+  const isFirstStepRender = useRef(true);
   const [vehicleSizeId, setVehicleSizeId] = useState(null);
   const [leistungId, setLeistungId] = useState(null);
   const [extraIds, setExtraIds] = useState([]);
@@ -638,10 +641,14 @@ export default function Kalkulator() {
   const [contact, setContact] = useState(EMPTY_CONTACT);
   const [files, setFiles] = useState([]);
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState(false);
 
   const [customContact, setCustomContact] = useState(EMPTY_CONTACT);
   const [customFiles, setCustomFiles] = useState([]);
   const [customSubmitted, setCustomSubmitted] = useState(false);
+  const [customSubmitting, setCustomSubmitting] = useState(false);
+  const [customSubmitError, setCustomSubmitError] = useState(false);
 
   const lederExtra = EXTRAS.find((e) => e.variants);
   const simpleExtras = EXTRAS.filter((e) => !e.variants);
@@ -690,7 +697,23 @@ export default function Kalkulator() {
     setStep((s) => Math.max(s - 1, 0));
   }
 
-  function handleSubmit(event) {
+  // Each step has a different content height (Fahrzeuggröße's grid of cards
+  // vs. Kontakt's full form), so advancing/going back instantly reflows
+  // everything below — without re-anchoring the scroll position this reads
+  // as the page jumping. Scrolling the step area back to the same spot on
+  // every step change keeps it visually stable regardless of height.
+  useEffect(() => {
+    if (isFirstStepRender.current) {
+      isFirstStepRender.current = false;
+      return;
+    }
+    stepAreaRef.current?.scrollIntoView({
+      behavior: reducedMotion ? "auto" : "smooth",
+      block: "start",
+    });
+  }, [step, reducedMotion]);
+
+  async function handleSubmit(event) {
     event.preventDefault();
     const extraLabels = [
       ...selectedSimpleExtras.map((e) => e.label),
@@ -698,15 +721,48 @@ export default function Kalkulator() {
     ].filter(Boolean);
 
     const subject = `Aufbereitungsanfrage – ${selectedLeistung?.label ?? "Kalkulator"}`;
+    setSubmitting(true);
+    setSubmitError(false);
+    try {
+      await submitToWeb3Forms({
+        subject,
+        fields: {
+          name: contact.name,
+          phone: contact.phone,
+          email: contact.email,
+          address: contact.address,
+          message: contact.message,
+          marke: contact.marke,
+          modell: contact.modell,
+          baujahr: contact.baujahr,
+          fahrzeuggroesse: selectedSize?.label ?? "–",
+          leistung: selectedLeistung?.label ?? "–",
+          extras: extraLabels.length ? extraLabels.join(", ") : "keine",
+          richtpreis: priceUnknown ? "auf Anfrage" : `ab ${totalPrice} €`,
+        },
+        files,
+      });
+      setSubmitted(true);
+    } catch {
+      setSubmitError(true);
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  function fallbackMailtoHref() {
+    const extraLabels = [
+      ...selectedSimpleExtras.map((e) => e.label),
+      lederVariant ? `${lederExtra.label} – ${lederVariant.label}` : null,
+    ].filter(Boolean);
+    const subject = `Aufbereitungsanfrage – ${selectedLeistung?.label ?? "Kalkulator"}`;
     const lines = [
       `Fahrzeuggröße: ${selectedSize?.label ?? "–"}`,
       `Leistung: ${selectedLeistung?.label ?? "–"}`,
       extraLabels.length ? `Extras: ${extraLabels.join(", ")}` : "Extras: keine",
       `Richtpreis: ${priceUnknown ? "auf Anfrage" : `ab ${totalPrice} €`}`,
     ];
-    const href = buildMailtoHref(subject, lines, contact, files);
-    window.location.href = href;
-    setSubmitted(true);
+    return buildMailtoHref(subject, lines, contact, files);
   }
 
   function resetCalculator() {
@@ -718,18 +774,41 @@ export default function Kalkulator() {
     setContact(EMPTY_CONTACT);
     setFiles([]);
     setSubmitted(false);
+    setSubmitError(false);
   }
 
-  function handleCustomSubmit(event) {
+  async function handleCustomSubmit(event) {
     event.preventDefault();
-    window.location.href = buildMailtoHref("Individuelle Aufbereitungsanfrage", [], customContact, customFiles);
-    setCustomSubmitted(true);
+    setCustomSubmitting(true);
+    setCustomSubmitError(false);
+    try {
+      await submitToWeb3Forms({
+        subject: "Individuelle Aufbereitungsanfrage",
+        fields: {
+          name: customContact.name,
+          phone: customContact.phone,
+          email: customContact.email,
+          address: customContact.address,
+          message: customContact.message,
+          marke: customContact.marke,
+          modell: customContact.modell,
+          baujahr: customContact.baujahr,
+        },
+        files: customFiles,
+      });
+      setCustomSubmitted(true);
+    } catch {
+      setCustomSubmitError(true);
+    } finally {
+      setCustomSubmitting(false);
+    }
   }
 
   function resetCustom() {
     setCustomContact(EMPTY_CONTACT);
     setCustomFiles([]);
     setCustomSubmitted(false);
+    setCustomSubmitError(false);
   }
 
   const revealClass = `transition-[opacity,transform] duration-700 ease-out ${
@@ -762,12 +841,8 @@ export default function Kalkulator() {
             {customSubmitted ? (
               <div key="confirmation" className="animate-step-fade">
                 <Confirmation
-                  title="Anfrage vorbereitet"
-                  description={
-                    customFiles.length
-                      ? "Dein E-Mail-Programm öffnet sich mit allen Angaben. Bitte hänge die ausgewählten Fotos manuell an, bevor du die E-Mail absendest."
-                      : "Dein E-Mail-Programm öffnet sich mit allen Angaben. Prüfe die Nachricht kurz und sende sie ab — wir melden uns zeitnah."
-                  }
+                  title="Anfrage gesendet"
+                  description="Deine Anfrage wurde erfolgreich verschickt — wir melden uns zeitnah bei dir."
                   onReset={resetCustom}
                 />
               </div>
@@ -780,9 +855,23 @@ export default function Kalkulator() {
                   files={customFiles}
                   setFiles={setCustomFiles}
                 />
-                <Button type="submit" variant="primary" className="mt-6 self-start">
-                  Anfrage senden
+                <Button
+                  type="submit"
+                  variant="primary"
+                  disabled={customSubmitting}
+                  className={`mt-6 self-start ${customSubmitting ? "pointer-events-none opacity-60" : ""}`}
+                >
+                  {customSubmitting ? "Wird gesendet…" : "Anfrage senden"}
                 </Button>
+                {customSubmitError && (
+                  <p className="mt-3 text-sm text-red-600">
+                    Senden fehlgeschlagen.{" "}
+                    <a href={buildMailtoHref("Individuelle Aufbereitungsanfrage", [], customContact, customFiles)} className="underline">
+                      Stattdessen per E-Mail senden
+                    </a>{" "}
+                    oder später erneut versuchen.
+                  </p>
+                )}
               </form>
             )}
           </div>
@@ -805,12 +894,12 @@ export default function Kalkulator() {
 
         {!submitted && <IndividuelleAnfrageBanner onClick={() => setMode("custom")} />}
 
-        <div className="mt-10">
+        <div ref={stepAreaRef} className="mt-10 scroll-mt-24">
           {submitted ? (
             <div key="confirmation" className="animate-step-fade">
               <Confirmation
-                title="Anfrage vorbereitet"
-                description="Dein E-Mail-Programm öffnet sich mit allen Angaben. Prüfe die Nachricht kurz und sende sie ab — wir melden uns zeitnah mit deinem finalen Angebot."
+                title="Anfrage gesendet"
+                description="Deine Anfrage wurde erfolgreich verschickt — wir melden uns zeitnah mit deinem finalen Angebot."
                 onReset={resetCalculator}
               />
             </div>
@@ -916,8 +1005,15 @@ export default function Kalkulator() {
                   Zurück
                 </button>
                 {step === 3 ? (
-                  <Button key="submit" type="submit" form="contact-form" variant="primary">
-                    Anfrage senden
+                  <Button
+                    key="submit"
+                    type="submit"
+                    form="contact-form"
+                    variant="primary"
+                    disabled={submitting}
+                    className={submitting ? "pointer-events-none opacity-60" : ""}
+                  >
+                    {submitting ? "Wird gesendet…" : "Anfrage senden"}
                   </Button>
                 ) : (
                   <MagneticWrap disabled={reducedMotion}>
@@ -933,6 +1029,15 @@ export default function Kalkulator() {
                   </MagneticWrap>
                 )}
               </div>
+              {submitError && (
+                <p className="mt-3 text-right text-sm text-red-600">
+                  Senden fehlgeschlagen.{" "}
+                  <a href={fallbackMailtoHref()} className="underline">
+                    Stattdessen per E-Mail senden
+                  </a>{" "}
+                  oder später erneut versuchen.
+                </p>
+              )}
             </div>
           )}
         </div>

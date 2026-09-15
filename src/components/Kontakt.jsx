@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Mail, MapPin, Phone, Send } from "lucide-react";
 import { useInView } from "../hooks/useInView.js";
+import { submitToWeb3Forms } from "../lib/web3forms.js";
 import Button from "./Button.jsx";
 import { WhatsappIcon, InstagramIcon, TiktokIcon, FacebookIcon, YoutubeIcon } from "./icons/SocialIcons.jsx";
 import { CONTACT_EMAIL, CONTACT_PHONE, CONTACT_PHONE_HREF, WHATSAPP_HREF } from "../data/services.js";
@@ -91,20 +92,34 @@ export default function Kontakt() {
   const [formRef, formInView] = useInView();
   const [form, setForm] = useState(EMPTY_FORM);
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState(false);
 
   function update(field) {
     return (e) => setForm((f) => ({ ...f, [field]: e.target.value }));
   }
 
-  function handleSubmit(event) {
+  async function handleSubmit(event) {
     event.preventDefault();
-    window.location.href = buildMailtoHref(form);
-    setSubmitted(true);
+    setSubmitting(true);
+    setSubmitError(false);
+    try {
+      await submitToWeb3Forms({
+        subject: `Kontaktanfrage – ${form.name || "Website"}`,
+        fields: { name: form.name, contact: form.contact, message: form.message },
+      });
+      setSubmitted(true);
+    } catch {
+      setSubmitError(true);
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   function resetForm() {
     setForm(EMPTY_FORM);
     setSubmitted(false);
+    setSubmitError(false);
   }
 
   return (
@@ -159,10 +174,9 @@ export default function Kontakt() {
           <div className="rounded-2xl border border-line bg-bg-alt p-6 sm:p-8 lg:p-10">
             {submitted ? (
               <div key="confirmation" className="animate-step-fade py-10 text-center">
-                <p className="font-display text-xl font-semibold text-ink">Nachricht vorbereitet</p>
+                <p className="font-display text-xl font-semibold text-ink">Nachricht gesendet</p>
                 <p className="mx-auto mt-2 max-w-sm text-sm text-ink-soft">
-                  Dein E-Mail-Programm öffnet sich mit allen Angaben. Prüfe die Nachricht kurz und sende sie
-                  ab — wir melden uns zeitnah bei dir.
+                  Deine Nachricht wurde erfolgreich verschickt — wir melden uns zeitnah bei dir.
                 </p>
                 <button
                   type="button"
@@ -220,10 +234,24 @@ export default function Kontakt() {
                   />
                 </div>
 
-                <Button type="submit" variant="primary" className="self-start">
+                <Button
+                  type="submit"
+                  variant="primary"
+                  disabled={submitting}
+                  className={`self-start ${submitting ? "pointer-events-none opacity-60" : ""}`}
+                >
                   <Send size={15} strokeWidth={2} aria-hidden="true" />
-                  Nachricht senden
+                  {submitting ? "Wird gesendet…" : "Nachricht senden"}
                 </Button>
+                {submitError && (
+                  <p className="text-sm text-red-600">
+                    Senden fehlgeschlagen.{" "}
+                    <a href={buildMailtoHref(form)} className="underline">
+                      Stattdessen per E-Mail senden
+                    </a>{" "}
+                    oder später erneut versuchen.
+                  </p>
+                )}
               </form>
             )}
           </div>

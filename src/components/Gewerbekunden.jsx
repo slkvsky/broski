@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Check, Mail, MessageCircle, Phone } from "lucide-react";
 import { useInView } from "../hooks/useInView.js";
+import { submitToWeb3Forms } from "../lib/web3forms.js";
 import Button from "./Button.jsx";
 import { CONTACT_EMAIL, CONTACT_PHONE, CONTACT_PHONE_HREF, WHATSAPP_HREF } from "../data/services.js";
 
@@ -76,21 +77,44 @@ export default function Gewerbekunden() {
   const [form, setForm] = useState(EMPTY_B2B_FORM);
   const [serviceIds, setServiceIds] = useState([]);
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState(false);
 
   function toggleService(id) {
     setServiceIds((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
   }
 
-  function handleSubmit(event) {
+  async function handleSubmit(event) {
     event.preventDefault();
-    window.location.href = buildMailto({ form, serviceIds });
-    setSubmitted(true);
+    const services = B2B_SERVICES.filter((s) => serviceIds.includes(s.id));
+    setSubmitting(true);
+    setSubmitError(false);
+    try {
+      await submitToWeb3Forms({
+        subject: `B2B-Anfrage – ${form.company || "Gewerbekunde"}`,
+        fields: {
+          company: form.company,
+          contactPerson: form.contactPerson,
+          email: form.email,
+          phone: form.phone,
+          scope: form.scope,
+          leistungen: services.length ? services.map((s) => s.label).join(", ") : "noch offen",
+          message: form.message,
+        },
+      });
+      setSubmitted(true);
+    } catch {
+      setSubmitError(true);
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   function resetForm() {
     setForm(EMPTY_B2B_FORM);
     setServiceIds([]);
     setSubmitted(false);
+    setSubmitError(false);
   }
 
   return (
@@ -145,10 +169,10 @@ export default function Gewerbekunden() {
         <div id="gewerbe-form" className="mt-10 scroll-mt-24">
           {submitted ? (
             <div key="confirmation" className="mx-auto max-w-md rounded-2xl border border-line bg-bg-alt px-6 py-10 text-center animate-step-fade">
-              <p className="font-display text-xl font-semibold text-ink">Anfrage vorbereitet</p>
+              <p className="font-display text-xl font-semibold text-ink">Anfrage gesendet</p>
               <p className="mx-auto mt-2 max-w-sm text-sm text-ink-soft">
-                Dein E-Mail-Programm öffnet sich mit allen Angaben. Prüfe die Nachricht kurz und sende
-                sie ab — wir melden uns zeitnah mit einem passenden Angebot.
+                Deine Anfrage wurde erfolgreich verschickt — wir melden uns zeitnah mit einem passenden
+                Angebot.
               </p>
               <button
                 type="button"
@@ -295,9 +319,23 @@ export default function Gewerbekunden() {
                     />
                   </div>
 
-                  <Button type="submit" variant="primary" className="self-start">
-                    B2B-Anfrage senden
+                  <Button
+                    type="submit"
+                    variant="primary"
+                    disabled={submitting}
+                    className={`self-start ${submitting ? "pointer-events-none opacity-60" : ""}`}
+                  >
+                    {submitting ? "Wird gesendet…" : "B2B-Anfrage senden"}
                   </Button>
+                  {submitError && (
+                    <p className="text-sm text-red-600">
+                      Senden fehlgeschlagen.{" "}
+                      <a href={buildMailto({ form, serviceIds })} className="underline">
+                        Stattdessen per E-Mail senden
+                      </a>{" "}
+                      oder später erneut versuchen.
+                    </p>
+                  )}
                 </form>
               </div>
             </div>

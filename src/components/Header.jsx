@@ -113,7 +113,7 @@ export default function Header() {
           >
             Kontakt
           </Link>
-          <Button as={Link} to="/kontakt" variant="primary" arrow={false} className="px-5 py-2.5 text-xs">
+          <Button as="a" href="/#leistungen" variant="primary" arrow={false} className="px-5 py-2.5 text-xs">
             Termin anfragen
           </Button>
         </nav>
@@ -170,7 +170,7 @@ export default function Header() {
           </Link>
         </nav>
 
-        <Button as={Link} to="/kontakt" variant="primary" onClick={() => setOpen(false)} className="w-full justify-center">
+        <Button as="a" href="/#leistungen" variant="primary" onClick={() => setOpen(false)} className="w-full justify-center">
           Termin anfragen
         </Button>
       </div>
