@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Mail, MapPin, Phone, Send } from "lucide-react";
 import { useInView } from "../hooks/useInView.js";
-import { submitToWeb3Forms } from "../lib/web3forms.js";
+import { submitContactRequest } from "../lib/sendRequest.js";
 import Button from "./Button.jsx";
 import { WhatsappIcon, InstagramIcon, TiktokIcon, FacebookIcon, YoutubeIcon } from "./icons/SocialIcons.jsx";
 import { CONTACT_EMAIL, CONTACT_PHONE, CONTACT_PHONE_HREF, WHATSAPP_HREF } from "../data/services.js";
@@ -104,7 +104,7 @@ export default function Kontakt() {
     setSubmitting(true);
     setSubmitError(false);
     try {
-      await submitToWeb3Forms({
+      await submitContactRequest({
         subject: `Kontaktanfrage – ${form.name || "Website"}`,
         fields: { name: form.name, contact: form.contact, message: form.message },
       });
