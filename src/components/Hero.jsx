@@ -129,8 +129,8 @@ export default function Hero() {
             className={`text-base leading-relaxed text-dark-ink-soft md:text-lg ${carLoaded ? "animate-fade-up" : "opacity-0"}`}
             style={carLoaded ? { animationDelay: "700ms" } : undefined}
           >
-            Platzhalter-Untertext: kurze Beschreibung der Leistung, des
-            Versprechens und der Zielgruppe folgt hier sp&auml;ter.
+            Mobile Fahrzeugaufbereitung in Wuppertal &amp; Umgebung — wir kommen zu
+            dir, mit allem Equipment im Gepäck.
           </p>
 
           <div

@@ -9,6 +9,7 @@ import KontaktPage from "./pages/KontaktPage.jsx";
 import FaqPage from "./pages/FaqPage.jsx";
 import ImpressumPage from "./pages/ImpressumPage.jsx";
 import DatenschutzPage from "./pages/DatenschutzPage.jsx";
+import NotFoundPage from "./pages/NotFoundPage.jsx";
 
 function ScrollToTopOnNavigate() {
   const { pathname, hash } = useLocation();
@@ -38,6 +39,7 @@ export default function App() {
           <Route path="/faq" element={<FaqPage />} />
           <Route path="/impressum" element={<ImpressumPage />} />
           <Route path="/datenschutz" element={<DatenschutzPage />} />
+          <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </main>
       <Footer />
