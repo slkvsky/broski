@@ -3,7 +3,7 @@ import { ArrowLeft, CarFront, CarTaxiFront, Check, ChevronDown, Gem, ImagePlus, 
 import { IconCar, IconCarSuv, IconTruckDelivery } from "@tabler/icons-react";
 import { useInView } from "../hooks/useInView.js";
 import { usePrefersReducedMotion } from "../hooks/usePrefersReducedMotion.js";
-import { submitToWeb3Forms } from "../lib/web3forms.js";
+import { submitContactRequest } from "../lib/sendRequest.js";
 import Button from "./Button.jsx";
 import AutocompleteInput from "./AutocompleteInput.jsx";
 import AnimatedNumber from "./AnimatedNumber.jsx";
@@ -724,7 +724,7 @@ export default function Kalkulator() {
     setSubmitting(true);
     setSubmitError(false);
     try {
-      await submitToWeb3Forms({
+      await submitContactRequest({
         subject,
         fields: {
           name: contact.name,
@@ -782,7 +782,7 @@ export default function Kalkulator() {
     setCustomSubmitting(true);
     setCustomSubmitError(false);
     try {
-      await submitToWeb3Forms({
+      await submitContactRequest({
         subject: "Individuelle Aufbereitungsanfrage",
         fields: {
           name: customContact.name,

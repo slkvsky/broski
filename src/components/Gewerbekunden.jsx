@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Check, Mail, MessageCircle, Phone } from "lucide-react";
 import { useInView } from "../hooks/useInView.js";
-import { submitToWeb3Forms } from "../lib/web3forms.js";
+import { submitContactRequest } from "../lib/sendRequest.js";
 import Button from "./Button.jsx";
 import { CONTACT_EMAIL, CONTACT_PHONE, CONTACT_PHONE_HREF, WHATSAPP_HREF } from "../data/services.js";
 
@@ -90,7 +90,7 @@ export default function Gewerbekunden() {
     setSubmitting(true);
     setSubmitError(false);
     try {
-      await submitToWeb3Forms({
+      await submitContactRequest({
         subject: `B2B-Anfrage – ${form.company || "Gewerbekunde"}`,
         fields: {
           company: form.company,
