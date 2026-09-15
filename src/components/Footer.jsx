@@ -65,7 +65,7 @@ export default function Footer() {
         </div>
 
         <div className="mt-12 flex flex-col gap-4 border-t border-line pt-6 text-xs text-ink-soft sm:flex-row sm:items-center sm:justify-between">
-          <span>&copy; {new Date().getFullYear()} Broski Detailing — Platzhalter</span>
+          <span>&copy; {new Date().getFullYear()} Broski Detailing. Alle Rechte vorbehalten.</span>
           <div className="flex gap-6">
             {LEGAL_LINKS.map((link) => (
               <Link key={link.to} to={link.to} className="transition-colors duration-150 hover:text-ink">
