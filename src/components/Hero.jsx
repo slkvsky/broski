@@ -3,7 +3,11 @@ import { Mail } from "lucide-react";
 import Button from "./Button.jsx";
 import { InstagramIcon, WhatsappIcon } from "./icons/SocialIcons.jsx";
 import { CONTACT_EMAIL, WHATSAPP_HREF } from "../data/services.js";
-import carImage from "../assets/car.png";
+import car640 from "../assets/car-640w.webp";
+import car960 from "../assets/car-960w.webp";
+import car1280 from "../assets/car-1280w.webp";
+import car1600 from "../assets/car-1600w.webp";
+import car1927 from "../assets/car-1927w.webp";
 
 const HERO_SOCIAL_LINKS = [
   { label: "WhatsApp", href: WHATSAPP_HREF, icon: WhatsappIcon },
@@ -16,6 +20,11 @@ const HERO_SOCIAL_LINKS = [
 // largest element of the page).
 const CAR_W = 1927;
 const CAR_H = 816;
+
+const CAR_SRCSET = `${car640} 640w, ${car960} 960w, ${car1280} 1280w, ${car1600} 1600w, ${car1927} 1927w`;
+// Mirrors the stage div's actual CSS (w-[105%] mobile / sm:max-w-[1250px]
+// desktop) — keep this in sync if that className ever changes.
+const CAR_SIZES = "(min-width: 640px) min(1250px, 100vw), 105vw";
 
 function ScrollCue({ className = "" }) {
   return (
@@ -91,7 +100,9 @@ export default function Hero() {
 
           <img
             ref={carRef}
-            src={carImage}
+            src={car1927}
+            srcSet={CAR_SRCSET}
+            sizes={CAR_SIZES}
             alt=""
             width={CAR_W}
             height={CAR_H}
@@ -110,7 +121,9 @@ export default function Hero() {
               everything else stays grayscale. */}
           {carLoaded && (
             <img
-              src={carImage}
+              src={car1927}
+              srcSet={CAR_SRCSET}
+              sizes={CAR_SIZES}
               alt=""
               aria-hidden="true"
               width={CAR_W}

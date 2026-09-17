@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import Button from "./Button.jsx";
-import logoMark from "../assets/logo-mark.webp";
+// Lives in public/ (not src/assets) so it has a build-stable path — the
+// index.html preload tag and this src need to reference the exact same URL.
+const logoMark = "/logo-mark.webp";
 
 const NAV_LINKS = [{ label: "Leistungen", href: "/#leistungen" }];
 
@@ -82,7 +84,14 @@ export default function Header() {
     >
       <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 md:px-10">
         <Link to="/" onClick={handleLogoClick} className="shrink-0">
-          <img src={logoMark} alt="Broski Detailing" className="h-8 w-auto md:h-9" />
+          <img
+            src={logoMark}
+            alt="Broski Detailing"
+            width={256}
+            height={108}
+            fetchPriority="high"
+            className="h-8 w-auto md:h-9"
+          />
         </Link>
 
         <nav className="hidden items-center gap-8 md:flex">
