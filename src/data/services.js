@@ -4,7 +4,7 @@ export const CONTACT_PHONE_HREF = "tel:+4915237880830";
 export const WHATSAPP_HREF = "https://wa.me/4915237880830";
 
 export const VEHICLE_SIZES = [
-  { id: "klein", label: "Kleinwagen", hint: "z. B. VW Polo, Opel Corsa, MINI" },
+  { id: "klein", label: "Kleinwagen", hint: "z. B. VW Polo, Toyota Yaris, MINI" },
   { id: "kompakt", label: "Kompaktklasse", hint: "z. B. VW Golf, Audi A3, BMW 1er" },
   { id: "mittel", label: "Mittelklasse", hint: "z. B. BMW 3er, Audi A4, Mercedes C-Klasse" },
   { id: "ober", label: "Oberklasse", hint: "z. B. BMW 5er, Audi A6, Mercedes E-Klasse" },
@@ -13,16 +13,9 @@ export const VEHICLE_SIZES = [
 ];
 
 // Price tables keyed by vehicle-size id. `null` = no fixed price ("auf Anfrage").
-const AUSSEN_PRICES = { klein: 69, kompakt: 79, mittel: 89, ober: 99, suv: 109, transporter: 125 };
-const INNEN_PRICES = { klein: 159, kompakt: 179, mittel: 199, ober: 210, suv: 239, transporter: 279 };
-const KOMPLETT_LACKSCHUTZ_PRICES = {
-  klein: 499,
-  kompakt: 549,
-  mittel: 599,
-  ober: 649,
-  suv: 699,
-  transporter: null,
-};
+const AUSSEN_PRICES = { klein: 49, kompakt: 55, mittel: 59, ober: 65, suv: 79, transporter: 79 };
+const INNEN_PRICES = { klein: 89, kompakt: 95, mittel: 109, ober: 119, suv: 139, transporter: 149 };
+const KOMPLETT_LACKSCHUTZ_PRICES = { klein: 333, kompakt: 354, mittel: 380, ober: 415, suv: 465, transporter: 474 };
 const TIERHAAR_PRICES = { klein: 40, kompakt: 50, mittel: 60, ober: 70, suv: 80, transporter: 90 };
 const ONE_STEP_POLITUR_PRICES = { klein: 159, kompakt: 169, mittel: 179, ober: 199, suv: 219, transporter: 249 };
 const MOTORRAUM_PRICES = { klein: 50, kompakt: 50, mittel: 55, ober: 55, suv: 60, transporter: 60 };
@@ -90,7 +83,7 @@ export const EXTRAS = [
     id: "scheinwerfer",
     label: "Scheinwerferaufbereitung",
     description: "Aufbereitung der Scheinwerfer für klare Sicht und ein hochwertigeres Erscheinungsbild.",
-    getPrice: () => 100,
+    getPrice: () => 70,
     priceSuffix: "/ Paar",
   },
   {
@@ -107,9 +100,9 @@ export const EXTRAS = [
       "Abgenutzte oder verfärbte Lederflächen werden professionell vorbereitet, farblich wiederhergestellt und anschließend geschützt.",
     highlight: true,
     variants: [
-      { id: "lenkrad", label: "Lenkrad", getPrice: () => 129 },
-      { id: "schalthebel", label: "Schalt-/Wählhebel", getPrice: () => 49 },
-      { id: "set", label: "Set (Lenkrad + Schalt-/Wählhebel)", getPrice: () => 160 },
+      { id: "lenkrad", label: "Lenkrad", getPrice: () => 79 },
+      { id: "schalthebel", label: "Schalt-/Wählhebel", getPrice: () => 39 },
+      { id: "set", label: "Set (Lenkrad + Schalt-/Wählhebel)", getPrice: () => 100 },
     ],
   },
 ];
